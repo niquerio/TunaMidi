@@ -110,4 +110,75 @@ describe("Song Model", function(){
 
         });
     });
+
+   it("Should determine active channels of MIDI", function(done){
+
+        var song = new app.Song({
+             midi_src: path + 'spec/aucun_se_sont.midi',
+             load_midi_callback: function(){
+              expect(this.active_channels[0]).toBeDefined();
+              expect(this.active_channels[0].instrument).toBe(6);
+              done();
+             },
+        }); 
+
+   });
+   it("Should generate array of times for next measure", function(done){
+        var song = new app.Song({
+             midi_src: path + 'spec/aucun_se_sont.midi',
+             load_midi_callback: function(){
+              expect(this.measures[2]).toBeDefined();
+              expect(this.measures[2]).toBe(1800);
+              done();
+             },
+        }); 
+   });
+
+  it("Should only have measures from the current midi", function(done){
+         var song = new app.Song({
+             midi_src: path + 'spec/example.mid',
+        }); 
+          var song2 = new app.Song({
+             midi_src: path + 'spec/aucun_se_sont.midi',
+             load_midi_callback: function(){
+              expect(this.measures[2]).toBeDefined();
+              expect(this.measures[2]).toBe(1800);
+              done();
+             },
+        }); 
+   });
+
+   it("Should have only meausres for newest loaded midi", function(done){
+         var song = new app.Song({
+             midi_src: path + 'spec/example.mid',
+        }); 
+        song.set('load_midi_callback', function(){
+             expect(this.measures[2]).toBe(1800);
+             done();
+        });
+        song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+
+   });
+  it("Should reset master_volume, transpose, timeWarp when new midi is loaded.", function(){
+     
+         var song = new app.Song({
+             midi_src: path + 'spec/example.mid',
+        }); 
+        song.set({
+            master_volume: 50,
+            transpose: 3,
+            timeWarp: 2,
+         });
+         expect(song.get('master_volume')).toBe(50);
+         expect(song.get('transpose')).toBe(3);
+         expect(song.get('timeWarp')).toBe(2);
+            
+        song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+         expect(song.get('master_volume')).toBe(100);
+         expect(song.get('transpose')).toBe(0);
+         expect(song.get('timeWarp')).toBe(1);
+  });
+
+  it("", function(){
+  });
 });

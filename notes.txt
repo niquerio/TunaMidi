@@ -1,0 +1,156 @@
+on t1: solo = true
+  press solo
+  unpress mute
+  channels.each
+      if channel.solo; channel.mute = false; CHANNELmute = false
+      elseif channel.mute; channel.solo = false; CHANNEL.mute = true;
+      else
+              channel.mute = false
+              channel.solo = true
+              CHANNEL.mute = true;
+     
+on t1: solo = false
+     unpress solo
+     unpress mute
+     otherSoloFlag = 0
+     channels.each
+          if channel == t1 skip
+          elseif channel.solo; otherSoloFlag
+
+
+    channels.each
+        if channel.solo; channel.mute = false; CHANNEL.Mute = false 
+        elseif channel.mute; channel.solo = false; CHANNEL.Mute = true
+       else: channel.mute = false; channel.solo = false; 
+            if otherSoloFlag —> CHANNEL.mute = true
+            else: CHANNEL.mute = false
+
+
+on t1: mute = true
+       unpress solo
+       press mute
+     
+        channel.solo = false;
+   otherSoloFlag = 0
+     channels.each
+          if channel.solo; otherSoloFlag
+
+    channels.each
+          if channel.solo; channel.mute = false; CHANNEL.Mute = false;
+          elseif channel.mute; channel.solo = false; CHANNEL.Mute = true;
+          else: channel.mute = false; channel.solo = false
+                if otherSoloFlag —> CHANNEL.mute = true
+        else: CHANNEL.mute = false
+
+on t1: mute = false
+     unpress mute
+     
+     otherSoloFlag = 0
+     channels.each
+          if channel.solo; otherSoloFlag
+
+     if otherSoloFlag CHANEL.mute = true
+     else CHANNEL.mute = false
+
+These functions happen in channelView
+
+----------------
+
+T -> Midi Channels
+t -> Song channels
+
+Base case
+t1 = none; T1 = none
+t2 = none; T2 = none
+t3 = none; T3 = none
+
+set t1 = mute
+then -> change T1 = mute (show mute)
+
+set t1 = solo
+then -> change T2 & T3 to mute
+
+Base Case
+t1  = solo; T1 = none
+t2 = none; T2 = mute
+t3 = none; T3 = mute
+
+set t1 = mute
+change T1 = mute (show mute) (turn off solo)
+change T2, T3 = none
+
+set t1 = none
+turn off solo button
+change T2, T3 = none
+
+Base Case
+t1 = mute; T1 = mute
+t2 = none; T2 = none
+t3 = none; T3 = none
+
+set t1 = solo; 
+show solo; turn off mute;
+set T2 & T3 mute;
+
+set t1=none
+turn off mute; set T1 = none
+
+Base Case
+t1 = none; T1 = mute
+t2 = solo; T2 = none
+t3 = none; T3 = mute
+
+set t1 = solo
+T1 = none; show solo
+
+set t1= mute
+T1; show mute
+
+
+
+Base Case
+t1 = solo; T1 = none
+t2 = solo; T2 = none
+t3 = none; T3 = mute
+
+set t1 = none
+t1; turn off solo
+
+set t1 = mute
+
+Base Case
+t1 = mute; T1 = mute
+t2 = solo; T2 = none
+t3 = none; T3 = mute
+
+set t1 = none
+
+set t1 = solo
+
+Base Case
+t1 = none; T1 = none
+t2 = mute; T2 = mute
+t3 = none; T3 = none
+
+set t1 = solo
+
+set t1 = mute
+
+Base Case
+t1 = solo; T1 = none
+t2 = mute; T2 = mute
+t3 = none; T3 = mute
+
+set t1 = none
+
+set t1 = mute
+
+
+Base Case
+t1 = mute; T1 = mute
+t2 = mute; T2 = mute
+t3 = none; T3 = none
+
+set t1 = none
+
+set t1 = solo
