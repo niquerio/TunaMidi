@@ -64,12 +64,20 @@ app.Song = Backbone.Model.extend({
 
   load_midi: function(){
      this.set({
+      currentTime: 0,
       measures: new Array(),
       active_channels: new Array(),
       master_volume: 100,
       transpose: 0,
       timeWarp: 1,
      });
+     if(/\.midi?$/.test(this.get('midi_src'))){
+       var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
+       title = myArray[1];
+       this.set('title', title);
+     }else{
+       title = 'Unknown';
+     }
      var self = this;
             //self.measures = new Array();
             //self.active_channels = new Array();

@@ -5,4 +5,4 @@ app.SongList = Backbone.Collection.extend({
 
 });
 
-app.Songs = new SongList();
+app.Songs = new app.SongList();

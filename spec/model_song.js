@@ -14,9 +14,21 @@ describe("Song Model", function(){
 
 
     it("Should have correct defaults", function(){
-        var song = new app.Song({midi_src: path + 'spec/example.mid',}); 
+        var song = new app.Song({midi_src: bionda_trecca,}); 
         expect(song.get('title')).toBe('Unknown');
         expect(song.get('currentTime')).toBe(0);
+    });
+
+    it("Should get title of midi from midi_src", function(){
+          var song = new app.Song({midi_src: path + 'spec/example.mid',}); 
+        expect(song.get('title')).toBe('example');
+          song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+        expect(song.get('title')).toBe('aucun_se_sont');
+        var song = new app.Song({midi_src: bionda_trecca,}); 
+        expect(song.get('title')).toBe('Unknown');
+          song.set('midi_src', path + 'spec/rachmaninov-3.midi', {validate: true});
+        expect(song.get('title')).toBe('rachmaninov-3');
+    
     });
     describe("Set midi_src", function(){
 
