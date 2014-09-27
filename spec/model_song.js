@@ -1,3 +1,4 @@
+define(["models/song"], function(Song){
 var song3;
 describe("Song Model", function(){
     
@@ -14,17 +15,17 @@ describe("Song Model", function(){
 
 
     it("Should have correct defaults", function(){
-        var song = new app.Song({midi_src: bionda_trecca,}); 
+        var song = new Song({midi_src: bionda_trecca,}); 
         expect(song.get('title')).toBe('Unknown');
         expect(song.get('currentTime')).toBe(0);
     });
 
     it("Should get title of midi from midi_src", function(){
-          var song = new app.Song({midi_src: path + 'spec/example.mid',}); 
+          var song = new Song({midi_src: path + 'spec/example.mid',}); 
         expect(song.get('title')).toBe('example');
           song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
         expect(song.get('title')).toBe('aucun_se_sont');
-        var song = new app.Song({midi_src: bionda_trecca,}); 
+        var song = new Song({midi_src: bionda_trecca,}); 
         expect(song.get('title')).toBe('Unknown');
           song.set('midi_src', path + 'spec/rachmaninov-3.midi', {validate: true});
         expect(song.get('title')).toBe('rachmaninov-3');
@@ -33,7 +34,7 @@ describe("Song Model", function(){
     describe("Set midi_src", function(){
 
       it("Should load set midi_src", function(){
-          var song = new app.Song({midi_src: path + 'spec/example.mid',}); 
+          var song = new Song({midi_src: path + 'spec/example.mid',}); 
           var data_url = song.get('midi_data_url');
           song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
           expect(song.get('midi_data_url')).not.toBe('');
@@ -42,7 +43,7 @@ describe("Song Model", function(){
 
 
       it("Should handle set non-existent MIDI gracefully", function(){
-          var song = new app.Song({midi_src: path + 'spec/example.mid'}); 
+          var song = new Song({midi_src: path + 'spec/example.mid'}); 
           var errorCallback = jasmine.createSpy('-invalid event callback-');
 
           song.on('invalid', errorCallback);
@@ -57,7 +58,7 @@ describe("Song Model", function(){
       });
       it("Should handle set fake MIDI gracefully", function(){
 
-         var song = new app.Song({midi_src: path + 'spec/example.mid'}); 
+         var song = new Song({midi_src: path + 'spec/example.mid'}); 
          expect(song.get('midi_data_url')).not.toBe('');
 
          var errorCallback = jasmine.createSpy('-invalid event callback-');
@@ -72,47 +73,47 @@ describe("Song Model", function(){
 
     describe("Initialization of midi_src", function(){
       it("Should load good midi on initialize", function(){
-        var song = new app.Song({midi_src:  path + 'spec/example.mid'});
+        var song = new Song({midi_src:  path + 'spec/example.mid'});
         expect(song.get('midi_data_url')).not.toBe('');
       });
 
       it("Should handle non-existent MIDI gracefully", function(){
-        var song = new app.Song({midi_src:  path + 'spec/non-existent-midi.mid'});
+        var song = new Song({midi_src:  path + 'spec/non-existent-midi.mid'});
         expect(song.get('midi_data_url')).toBe('');
       });
 
       it("Should handle empty midi_src on initialize gracefully", function(){
-        var song = new app.Song();
+        var song = new Song();
         expect(song.get('midi_data_url')).toBe('');
       });
 
       it("Should fail with relative path for midi_src", function(){
-        var song = new app.Song({midi_src: 'spec/example.mid'});
+        var song = new Song({midi_src: 'spec/example.mid'});
         expect(song.get('midi_data_url')).toBe('');
       });
       it("Should handle very Large MIDI on initialize gracefully", function(){
-        var song4 = new app.Song({midi_src:  path + 'spec/veryLargeFakeMid.mid'});
+        var song4 = new Song({midi_src:  path + 'spec/veryLargeFakeMid.mid'});
         expect(song4.get('midi_data_url')).toBe('');
       });
 
       it("Should handle non-existent MIDI on initialize gracefully", function(){
-        var song5 = new app.Song({midi_src:  path + 'spec/fakeNormalSizeMidi.mid'});
+        var song5 = new Song({midi_src:  path + 'spec/fakeNormalSizeMidi.mid'});
         expect(song5.get('midi_data_url')).toBe('');
       }); 
 
       it("Should process data url", function(){
-        var song = new app.Song({midi_src: bionda_trecca});
+        var song = new Song({midi_src: bionda_trecca});
         expect(song.get('midi_data_url')).not.toBe('');
       });
       it("Should process external midi", function(){
-        var song = new app.Song({midi_src: "http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi"});
+        var song = new Song({midi_src: "http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi"});
         expect(song.get('midi_data_url')).not.toBe('');
       });
     });
 
     it("Should get a copy of data from MIDI", function(done){
-        var song = new app.Song({midi_src: path + 'spec/example.mid'}); 
-        var song2 = new app.Song({
+        var song = new Song({midi_src: path + 'spec/example.mid'}); 
+        var song2 = new Song({
            midi_src: path + 'spec/aucun_se_sont.midi', 
            load_midi_callback: function(){
               expect(song.get('data')).toBeDefined();
@@ -125,7 +126,7 @@ describe("Song Model", function(){
 
    it("Should determine active channels of MIDI", function(done){
 
-        var song = new app.Song({
+        var song = new Song({
              midi_src: path + 'spec/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.active_channels[0]).toBeDefined();
@@ -136,7 +137,7 @@ describe("Song Model", function(){
 
    });
    it("Should generate array of times for next measure", function(done){
-        var song = new app.Song({
+        var song = new Song({
              midi_src: path + 'spec/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.measures[2]).toBeDefined();
@@ -147,10 +148,10 @@ describe("Song Model", function(){
    });
 
   it("Should only have measures from the current midi", function(done){
-         var song = new app.Song({
+         var song = new Song({
              midi_src: path + 'spec/example.mid',
         }); 
-          var song2 = new app.Song({
+          var song2 = new Song({
              midi_src: path + 'spec/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.measures[2]).toBeDefined();
@@ -161,7 +162,7 @@ describe("Song Model", function(){
    });
 
    it("Should have only meausres for newest loaded midi", function(done){
-         var song = new app.Song({
+         var song = new Song({
              midi_src: path + 'spec/example.mid',
         }); 
         song.set('load_midi_callback', function(){
@@ -173,7 +174,7 @@ describe("Song Model", function(){
    });
   it("Should reset master_volume, transpose, timeWarp when new midi is loaded.", function(){
      
-         var song = new app.Song({
+         var song = new Song({
              midi_src: path + 'spec/example.mid',
         }); 
         song.set({
@@ -193,4 +194,5 @@ describe("Song Model", function(){
 
   it("", function(){
   });
+});
 });

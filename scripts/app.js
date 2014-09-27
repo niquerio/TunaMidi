@@ -3,6 +3,7 @@ requirejs.config({
       "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js",
       "backbone":"http://documentcloud.github.com/backbone/backbone.js",
       "underscore" :"http://documentcloud.github.com/underscore/underscore.js", 
+      "text" : 'lib/text',
     },
     "shim": {
       'underscore': {
@@ -26,7 +27,7 @@ requirejs.config({
          exports: "Stream"
       },
       'lib/Base64': {
-         exports: "atob"
+         exports: "window.atob"
       },
      'lib/base64binary': {
          exports: "Base64Binary"
