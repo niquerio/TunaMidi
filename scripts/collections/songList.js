@@ -1,8 +1,7 @@
-var app = app || {};
-
-app.SongList = Backbone.Collection.extend({
-    model: app.Song,
-
+define(["backbone", "models/song"], function(Backbone, Song){
+  var SongList = Backbone.Collection.extend({
+      model: Song,
+  });
+  return new SongList;
 });
 
-app.Songs = new app.SongList();

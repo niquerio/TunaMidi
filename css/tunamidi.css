@@ -1,0 +1,29 @@
+h1, h2, h3, h4 {
+  text-align: center;
+}
+
+
+#player {
+  display: table;
+  margin: 10px auto;
+  
+}
+
+.buttons-container {
+  display: inline-block;
+}
+
+.time {
+  margin: 0 5px;
+}
+#progressBar .slider-selection{
+  background: #BABABA;
+}
+
+#progressBar{
+  width:500px;
+}
+#progressBar .slider-handle{
+height: 0px;
+width: 0px;
+}

@@ -9,10 +9,12 @@
       'jasmine-html': '../lib/jasmine-2.0.2/jasmine-html',
       'boot': '../lib/jasmine-2.0.2/boot',
       'jasmine-jquery': '../lib/jasmine-jquery',
+      'path': '../spec/helpers/path',
       "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min",
       "backbone":"http://documentcloud.github.com/backbone/backbone",
       "underscore" :"http://documentcloud.github.com/underscore/underscore", 
       "text" : 'lib/text',
+      "bootstrap" : "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min",
     },
     //urlArgs: "bust=" + (new Date()).getTime(),
     shim: {
@@ -38,6 +40,7 @@
          deps : [ "jquery", "underscore" ],
          exports: "Backbone"
       },
+      'bootstrap': { deps : [ "jquery" ], },
       'lib/MIDI': {
          deps : [ "lib/Base64", "lib/base64binary", "lib/jasmid/stream", "lib/jasmid/replayer","lib/jasmid/midifile" ],
          exports: "MIDI"
@@ -57,27 +60,38 @@
      'lib/base64binary': {
          exports: "Base64Binary"
      },
+     'lib/bootstrap-slider.min': {
+         deps: ["jquery"],
+     },
     }
   });
 
   // Define all of your specs here. These are RequireJS modules.
   var specs = [
-    //'tests/spec/routerSpec'
-    '../spec/model_song',
-    '../spec/view_songView'
+
+    //'../spec/model_channel',
+    //'../spec/model_song',
+    //'../spec/view_songView',
+    '../spec/view_appView',
+    //'../spec/view_channelView',
+    '../spec/view_playerView',
+    //'../spec/collection_songList',
+    //'../spec/collection_channelList',
   ];
 
   // Load Jasmine - This will still create all of the normal Jasmine browser globals unless `boot.js` is re-written to use the
   // AMD or UMD specs. `boot.js` will do a bunch of configuration and attach it's initializers to `window.onload()`. Because
   // we are using RequireJS `window.onload()` has already been triggered so we have to manually call it again. This will
   // initialize the HTML Reporter and execute the environment.
-  require(['boot'], function () {
+  require(['lib/MIDI', 'boot'], function (MIDI) {
 
     // Load the specs
     require(specs, function () {
 
       // Initialize the HTML Reporter and execute the environment (setup by `boot.js`)
+      MIDI.loadPlugin( function () {
       window.onload();
+      });
     });
   });
 })();

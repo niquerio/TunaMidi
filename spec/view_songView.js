@@ -1,18 +1,9 @@
-define(["models/song", "views/songView", 'jquery', "text!templates/songView.html", 'jasmine-jquery', ], function(Song, SongView, $, songViewTemplate){
+define(["path", "models/song", "views/songView", 'jquery', "text!templates/songView.html", 'jasmine-jquery', ], function(path, Song, SongView, $, songViewTemplate){
    describe("SongView View", function(){
 
-    var protocol = window.location.protocol;
-    var host = window.location.host;
-    var pathArray = window.location.pathname.split( '/' );
-    pathArray.pop();
-    var path = protocol + '//' + host;
-    for ( var i = 0; i < pathArray.length; i++ ) {
-        path = path + pathArray[i] + '/';
-    }
     
      beforeEach(function(){
        var song = new Song({midi_src: path + 'example.mid'});
-       //$('body').append('<ul id="songList"></ul>');
        this.songView = new SongView({model: song});
        setFixtures('<ul id="songList"></ul>');
      });
@@ -43,7 +34,7 @@ define(["models/song", "views/songView", 'jquery', "text!templates/songView.html
          // let's use jasmine-jquery's toContain() to avoid
          // testing for the complete content of a todo's markup
          expect(this.songView.el.innerHTML)
-           .toContain('<a class="songTitle" href="#">example</a> <a href="#">Reset</a>');
+           .toContain('example');
        });
 
     }); //Rendering

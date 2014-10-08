@@ -4,6 +4,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
       defaults: {
           title: 'Unknown',
           currentTime: 0,
+          endTime: 0,
           midi_src:  '',
           midi_data_url: '',
           load_midi_callback: function(){},
@@ -65,6 +66,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
     load_midi: function(){
        this.set({
         currentTime: 0,
+        endTime: 0,
         measures: new Array(),
         active_channels: new Array(),
         master_volume: 100,
@@ -83,6 +85,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
               //self.active_channels = new Array();
           MIDI.Player.loadFile(this.get('midi_data_url'),function(){
               self.set({data: $.extend(true, [],MIDI.Player.data) });
+              self.set({endTime: MIDI.Player.endTime});
               self.get_active_channels();
               self.initialize_measures();
               self.attributes.load_midi_callback();
@@ -92,6 +95,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
     get_active_channels: function(){
           var data = this.get('data');
           var length = data.length;
+          var instrumentsToLoad = [];
   
           for(var n = 0; n < length; n++){
               var event = data[n][0].event;
@@ -107,6 +111,17 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
                   }
               }
           }
+          this.attributes.active_channels.forEach(function(element, index){
+            instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
+            if(!MIDI.Soundfont[instrument_name]){
+              instrumentsToLoad.push(instrument_name);
+            }
+          });
+          MIDI.loadPlugin({instruments: instrumentsToLoad, 
+            callback: function(){ 
+              console.log('finished'); 
+            },
+          });
     },
       initialize_measures: function(){
           var data = this.get('data');

@@ -1,0 +1,5 @@
+  <td class="channelNum"><%= channel %></td>
+  <td><button type="button" class="solo btn btn-default btn-sm <%= solo ? 'active' : ''  %>" data-toggle="button"><span class="glyphicon glyphicon-volume-up"></span></button></td>
+  <td><button type="button" class="mute btn btn-default btn-sm <%= mute ? 'active' : ''  %>" data-toggle="button"><span class="glyphicon glyphicon-volume-off"></span></button></td>
+  <td class="instrument"><%= MIDI.GeneralMIDI.byId[instrument].instrument %></td>
+  <td class="volume">VOLUME</td>

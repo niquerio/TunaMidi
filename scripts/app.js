@@ -1,36 +1,36 @@
-requirejs.config({
-    "paths": {
-      "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js",
-      "backbone":"http://documentcloud.github.com/backbone/backbone.js",
-      "underscore" :"http://documentcloud.github.com/underscore/underscore.js", 
-      "text" : 'lib/text',
-    },
-    "shim": {
-      'underscore': {
-        exports: "_"
-      },
-      'backbone': {
-         deps : [ "jquery", "underscore" ],
-         exports: "Backbone"
-      },
-      'lib/MIDI': {
-         deps : [ "lib/Base64", "lib/base64binary", "lib/jasmid/stream", "lib/jasmid/replayer","lib/jasmid/midifile" ],
-         exports: "MIDI"
-      },
-      'lib/jasmid/midifile': {
-         exports: "MidiFile"
-      },
-      'lib/jasmid/replayer': {
-         exports: "Replayer"
-      },
-      'lib/jasmid/stream': {
-         exports: "Stream"
-      },
-      'lib/Base64': {
-         exports: "window.atob"
-      },
-     'lib/base64binary': {
-         exports: "Base64Binary"
-     },
-   }
-});
+define([
+    'marionette',
+    'collections/songList',
+    'path',
+    'lib/MIDI',
+    'views/appView',
+    'views/playerView',
+    'common',
+
+    ],function(Marionette, Songs, path, MIDI, AppView, PlayerView,Common ){
+      var app = new Marionette.Application();
+      //var songList = new SongList(); 
+
+      app.addRegions({ 
+          player: "#playerContainer", 
+          songs: "#sideBar",  
+      });
+      //var songsView = new AppView({collection: Songs }) ;
+      
+
+      app.addInitializer(function(){
+
+      //  MIDI.loadPlugin( function () {
+      //    Songs.add([
+      //      {midi_src: path + 'spec/midi/example.mid', },
+      //      {midi_src: path + 'spec/midi/aucun_se_sont.midi'},
+      //      ]);
+      //    var playerView = new PlayerView({model: Songs.first()});
+      //    app.songs.show(songsView);
+      //    app.player.show(playerView);
+      //  });
+      });
+
+    return app;
+    });
+    

@@ -1,15 +1,7 @@
-define(["models/song"], function(Song){
+define(["models/song", "path"], function(Song, path){
 var song3;
 describe("Song Model", function(){
     
-    var protocol = window.location.protocol;
-    var host = window.location.host;
-    var pathArray = window.location.pathname.split( '/' );
-    pathArray.pop();
-    var path = protocol + '//' + host;
-    for ( var i = 0; i < pathArray.length; i++ ) {
-        path = path + pathArray[i] + '/';
-    }
 
     var bionda_trecca = 'data:audio/midi;base64,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hgCRPAAAkT5ahgCRPgAAkUBakgCRQAAA/y8ATVRyawAAAa8A/wUCTGGGAP8FBGJpb26GAP8FAmRhhgD/BQN0cmWDAP8FASCDAP8FASCDAP8FBsOnw6dhLIYA/wUBIIMA/wUDZGVshgD/BQRmaW4njAD/BQJvcoYA/wUCY2+MAP8FAmxvpAD/BQJyZZIA/wUDTSdhkgD/BQJsZYYA/wUCZ2GDAP8FAnRvgwD/BQJsYYYA/wUDbWVujAD/BQR0J2FshgD/BQJtZYYA/wUBIIMA/wUFw6dvJ2yGAP8FASCDAP8FAmNvpAD/BQNyZS6SAP8FAlNpkgD/BQJtaYYA/wUGbCfDqCdsgwD/BQEggwD/BQEggwD/BQEggwD/BQJ2aYYA/wUEc28gYYYA/wUHY2h1ZWxsJ4YA/wUCb22GAP8FASCDAP8FA2JyYYYA/wUBIIMA/wUCZmGSAP8FA2NlLJIA/wUBT4YA/wUCdmWGAP8FAnJphgD/BQNkb26GAP8FASCGAP8FAmxlhgD/BQNwZXKMAP8FBGxlIGWGAP8FAnZhgwD/BQEggwD/BQEggwD/BQNnaGmDAP8FASCDAP8FASCDAP8FA2Zpb+wA/wUDcmkuAP8vAE1UcmsAAAGoAP8FAUWGAP8FAnNvhgD/BQVnbGllZoYA/wUDZmV0gwD/BQEggwD/BQEggwD/BQJ0aYYA/wUBIIMA/wUDZGVshgD/BQNtaWWMAP8FAm1hhgD/BQJtYYwA/wUEZ2dpb6QA/wUDcmkukgD/BQNDaGWSAP8FA2xsZYYA/wUCcGGDAP8FAnJvgwD/BQRsZSBlhgD/BQNiZWyMAP8FAmxvhgD/BQJ2ZYYA/wUBIIMA/wUEZGUgYYYA/wUBIIMA/wUCbW+kAP8FA3JlLpIA/wUDQ2hlkgD/BQJjb4YA/wUCbWWDAP8FASCDAP8FASCDAP8FASCDAP8FA3B1coYA/wUCbmWGAP8FBXZlIGFshgD/BQNzb2yGAP8FASCDAP8FAm1phgD/BQEggwD/BQNzZmGSAP8FAmNlkgD/BQFFhgD/BQNub26GAP8FAnNphgD/BQJjdYYA/wUBIIYA/wUDcmEshgD/BQNwZXKMAP8FBWNoJ2lvhgD/BQJtaYMA/wUBIIMA/wUBIIMA/wUDc2NvgwD/BQEggwD/BQEggwD/BQJsb+wA/wUDcmkuAP8vAE1UcmsAAAGRAP8FAkxhhgD/BQRiaW9uhgD/BQJkYYYA/wUDdHJliQD/BQbDp8OnYSyGAP8FASCDAP8FA2RlbIYA/wUEZmluJ4wA/wUCb3KGAP8FAmNvjAD/BQJsb6QA/wUCcmWSAP8FA00nYYYA/wUBIIYA/wUBIIYA/wUCbGWGAP8FAmdhgwD/BQJ0b4MA/wUCbGGGAP8FA21lbowA/wUEdCdhbIYA/wUCbWWJAP8FBcOnbydsiQD/BQJjb6QA/wUDcmUukgD/BQJTaZIA/wUCbWmGAP8FBmwnw6gnbIYA/wUBIIYA/wUCdmmGAP8FBHNvIGGGAP8FB2NodWVsbCeGAP8FAm9thgD/BQEggwD/BQNicmGGAP8FASCDAP8FAmZhhgD/BQEghgD/BQEghgD/BQNjZSySAP8FAU+GAP8FAnZlhgD/BQJyaYYA/wUDZG9uhgD/BQEghgD/BQJsZYYA/wUDcGVyjAD/BQRsZSBlhgD/BQJ2YYkA/wUDZ2hphgD/BQEggwD/BQNmaW/sAP8FA3JpLgD/LwBNVHJrAAABigD/BQFFhgD/BQJzb4YA/wUFZ2xpZWaGAP8FA2ZldIkA/wUCdGmGAP8FASCDAP8FA2RlbIYA/wUDbWlljAD/BQJtYYYA/wUCbWGMAP8FBGdnaW+kAP8FA3JpLpIA/wUDQ2hlhgD/BQEghgD/BQEghgD/BQNsbGWGAP8FAnBhgwD/BQJyb4MA/wUEbGUgZYYA/wUDYmVsjAD/BQJsb4YA/wUCdmWJAP8FBGRlIGGJAP8FAm1vpAD/BQNyZS6SAP8FA0NoZZIA/wUCY2+GAP8FAm1lhgD/BQEghgD/BQNwdXKGAP8FAm5lhgD/BQV2ZSBhbIYA/wUDc29shgD/BQEggwD/BQJtaYYA/wUBIIMA/wUDc2ZhhgD/BQEghgD/BQEghgD/BQJjZZIA/wUBRYYA/wUDbm9uhgD/BQJzaYYA/wUCY3WGAP8FASCGAP8FA3JhLIYA/wUDcGVyjAD/BQVjaCdpb4YA/wUCbWmJAP8FA3Njb4YA/wUBIIMA/wUCbG/sAP8FA3JpLgD/LwA=';
 
@@ -21,29 +13,29 @@ describe("Song Model", function(){
     });
 
     it("Should get title of midi from midi_src", function(){
-          var song = new Song({midi_src: path + 'spec/example.mid',}); 
+          var song = new Song({midi_src: path + 'spec/midi/example.mid',}); 
         expect(song.get('title')).toBe('example');
-          song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+          song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
         expect(song.get('title')).toBe('aucun_se_sont');
         var song = new Song({midi_src: bionda_trecca,}); 
         expect(song.get('title')).toBe('Unknown');
-          song.set('midi_src', path + 'spec/rachmaninov-3.midi', {validate: true});
+          song.set('midi_src', path + 'spec/midi/rachmaninov-3.midi', {validate: true});
         expect(song.get('title')).toBe('rachmaninov-3');
     
     });
     describe("Set midi_src", function(){
 
       it("Should load set midi_src", function(){
-          var song = new Song({midi_src: path + 'spec/example.mid',}); 
+          var song = new Song({midi_src: path + 'spec/midi/example.mid',}); 
           var data_url = song.get('midi_data_url');
-          song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+          song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
           expect(song.get('midi_data_url')).not.toBe('');
           expect(song.get('midi_data_url')).not.toBe(data_url);
       });
 
 
       it("Should handle set non-existent MIDI gracefully", function(){
-          var song = new Song({midi_src: path + 'spec/example.mid'}); 
+          var song = new Song({midi_src: path + 'spec/midi/example.mid'}); 
           var errorCallback = jasmine.createSpy('-invalid event callback-');
 
           song.on('invalid', errorCallback);
@@ -58,12 +50,12 @@ describe("Song Model", function(){
       });
       it("Should handle set fake MIDI gracefully", function(){
 
-         var song = new Song({midi_src: path + 'spec/example.mid'}); 
+         var song = new Song({midi_src: path + 'spec/midi/example.mid'}); 
          expect(song.get('midi_data_url')).not.toBe('');
 
          var errorCallback = jasmine.createSpy('-invalid event callback-');
          song.on('invalid', errorCallback);
-         song.set('midi_src', path + 'spec/fakeNormalSizeMidi.mid', {validate: true});
+         song.set('midi_src', path + 'spec/midi/fakeNormalSizeMidi.mid', {validate: true});
 
          expect(song.get('midi_data_url')).toBe('');
          var errorArgs = errorCallback.calls.mostRecent().args;
@@ -73,12 +65,12 @@ describe("Song Model", function(){
 
     describe("Initialization of midi_src", function(){
       it("Should load good midi on initialize", function(){
-        var song = new Song({midi_src:  path + 'spec/example.mid'});
+        var song = new Song({midi_src:  path + 'spec/midi/example.mid'});
         expect(song.get('midi_data_url')).not.toBe('');
       });
 
       it("Should handle non-existent MIDI gracefully", function(){
-        var song = new Song({midi_src:  path + 'spec/non-existent-midi.mid'});
+        var song = new Song({midi_src:  path + 'spec/midi/non-existent-midi.mid'});
         expect(song.get('midi_data_url')).toBe('');
       });
 
@@ -88,16 +80,16 @@ describe("Song Model", function(){
       });
 
       it("Should fail with relative path for midi_src", function(){
-        var song = new Song({midi_src: 'spec/example.mid'});
+        var song = new Song({midi_src: 'spec/midi/example.mid'});
         expect(song.get('midi_data_url')).toBe('');
       });
       it("Should handle very Large MIDI on initialize gracefully", function(){
-        var song4 = new Song({midi_src:  path + 'spec/veryLargeFakeMid.mid'});
+        var song4 = new Song({midi_src:  path + 'spec/midi/veryLargeFakeMid.mid'});
         expect(song4.get('midi_data_url')).toBe('');
       });
 
       it("Should handle non-existent MIDI on initialize gracefully", function(){
-        var song5 = new Song({midi_src:  path + 'spec/fakeNormalSizeMidi.mid'});
+        var song5 = new Song({midi_src:  path + 'spec/midi/fakeNormalSizeMidi.mid'});
         expect(song5.get('midi_data_url')).toBe('');
       }); 
 
@@ -112,9 +104,9 @@ describe("Song Model", function(){
     });
 
     it("Should get a copy of data from MIDI", function(done){
-        var song = new Song({midi_src: path + 'spec/example.mid'}); 
+        var song = new Song({midi_src: path + 'spec/midi/example.mid'}); 
         var song2 = new Song({
-           midi_src: path + 'spec/aucun_se_sont.midi', 
+           midi_src: path + 'spec/midi/aucun_se_sont.midi', 
            load_midi_callback: function(){
               expect(song.get('data')).toBeDefined();
               expect(song.get('data')).not.toEqual(this.data);
@@ -123,11 +115,21 @@ describe("Song Model", function(){
 
         });
     });
+    it("Should get endTime from MIDI", function(done){
+        var song = new Song({
+           midi_src: path + 'spec/midi/aucun_se_sont.midi', 
+           load_midi_callback: function(){
+              expect(this.endTime).not.toBe(0);
+              done();
+          }
+
+        });
+    });
 
    it("Should determine active channels of MIDI", function(done){
 
         var song = new Song({
-             midi_src: path + 'spec/aucun_se_sont.midi',
+             midi_src: path + 'spec/midi/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.active_channels[0]).toBeDefined();
               expect(this.active_channels[0].instrument).toBe(6);
@@ -138,7 +140,7 @@ describe("Song Model", function(){
    });
    it("Should generate array of times for next measure", function(done){
         var song = new Song({
-             midi_src: path + 'spec/aucun_se_sont.midi',
+             midi_src: path + 'spec/midi/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.measures[2]).toBeDefined();
               expect(this.measures[2]).toBe(1800);
@@ -149,10 +151,10 @@ describe("Song Model", function(){
 
   it("Should only have measures from the current midi", function(done){
          var song = new Song({
-             midi_src: path + 'spec/example.mid',
+             midi_src: path + 'spec/midi/example.mid',
         }); 
           var song2 = new Song({
-             midi_src: path + 'spec/aucun_se_sont.midi',
+             midi_src: path + 'spec/midi/aucun_se_sont.midi',
              load_midi_callback: function(){
               expect(this.measures[2]).toBeDefined();
               expect(this.measures[2]).toBe(1800);
@@ -163,19 +165,19 @@ describe("Song Model", function(){
 
    it("Should have only meausres for newest loaded midi", function(done){
          var song = new Song({
-             midi_src: path + 'spec/example.mid',
+             midi_src: path + 'spec/midi/example.mid',
         }); 
         song.set('load_midi_callback', function(){
              expect(this.measures[2]).toBe(1800);
              done();
         });
-        song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+        song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
 
    });
   it("Should reset master_volume, transpose, timeWarp when new midi is loaded.", function(){
      
          var song = new Song({
-             midi_src: path + 'spec/example.mid',
+             midi_src: path + 'spec/midi/example.mid',
         }); 
         song.set({
             master_volume: 50,
@@ -186,7 +188,7 @@ describe("Song Model", function(){
          expect(song.get('transpose')).toBe(3);
          expect(song.get('timeWarp')).toBe(2);
             
-        song.set('midi_src', path + 'spec/aucun_se_sont.midi', {validate: true});
+        song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
          expect(song.get('master_volume')).toBe(100);
          expect(song.get('transpose')).toBe(0);
          expect(song.get('timeWarp')).toBe(1);
