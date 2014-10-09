@@ -120,6 +120,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
           MIDI.loadPlugin({instruments: instrumentsToLoad, 
             callback: function(){ 
               console.log('finished'); 
+              MIDI.loader.stop();
             },
           });
     },

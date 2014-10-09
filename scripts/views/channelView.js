@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelList', 'bootstrap'], function($,_,Backbone,templates, Channels){
+define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelList', 'common', 'lib/MIDI','bootstrap', 'select2'], function($,_,Backbone,templates, Channels, Common, MIDI ){
   var ChannelView = Backbone.View.extend({
       tagName: 'tr',
   
@@ -7,15 +7,55 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
       events: {
         'click .solo': 'solo',
         'click .mute': 'mute',
+        'blur .edit': 'close',
+
       },
   
+     updateOnEnter: function(e){
+                     if (e.keyCode === Common.ENTER_KEY ){
+                       this.close();
+                     } 
+     },
+     close: function(){
+     },
      initialize: function(){
      },
      
+     
      render: function(){
-               this.$el.html( this.template(this.model.attributes) );
-               return this;
+       this.$el.html( this.template(this.model.attributes) );
+       this.$input = this.$('.edit');
+
+       this.$input.select2({
+         data: Common.Instruments,
+       });
+
+       this.$input.select2("val",this.model.get('instrument'));
+       var self = this;
+       this.$input.on("select2-selecting", function(instrument){
+         var wasPlaying = MIDI.Player.playing;
+         if(MIDI.Player.playing){
+           MIDI.Player.pause();
+         }
+         MIDI.programChange(self.model.get('channel')-1, instrument.val);
+         self.model.set("instrument", instrument.val);
+
+         var instrument_name = MIDI.GeneralMIDI.byId[instrument.val].id;
+         if(!MIDI.Soundfont[instrument_name]){
+           MIDI.loadPlugin({
+             instrument: instrument_name, 
+             callback: function(){ 
+             if(wasPlaying){ MIDI.Player.resume(); } 
+               MIDI.loader.stop(); 
              },
+           });
+         }else{
+             if(wasPlaying){ MIDI.Player.resume(); } 
+         }
+
+       });
+       return this;
+    },
     solo: function(){
       if(this.model.get('solo') == false){ //turn solo on
         if(this.$el.find('.mute').hasClass('active')) this.$el.find('.mute').button('toggle');

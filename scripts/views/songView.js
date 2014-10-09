@@ -7,14 +7,36 @@ define(['underscore', 'backbone', 'templates', 'views/playerView', 'common',
   
       events: {
         'click .load': 'loadSong',
+        'dblclick span': 'edit',
+        'keypress .edit': 'updateOnEnter',
+        'blur .edit': 'close',
       },
   
      initialize: function(){
                    
      },
+     edit: function(){
+             this.$el.addClass('editing');
+             this.$input.focus();
+     },
+     updateOnEnter: function(e){
+                     if (e.keyCode === Common.ENTER_KEY ){
+                       this.close();
+                     } 
+     },
+     close: function(){
+       var value = this.$input.val().trim();
+       if (value){
+         this.model.set({title: value});
+         this.$title.text(value);
+       }
+       this.$el.removeClass('editing');
+     },
      
      render: function(){
                this.$el.html( this.template(this.model.attributes) );
+               this.$input = this.$('.edit');
+               this.$title = this.$('.view').find('.title');
                return this;
              },
       loadSong: function(){

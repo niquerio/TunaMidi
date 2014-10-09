@@ -108,7 +108,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     renderOneChannel: function(channel){
     },
     renderAllChannels: function(){
-      channelList = $("<table>").addClass('table');
+      channelList = $("<table>").addClass('table').attr("id", "channels");
       channelList.append("<thead><tr><th>#</th><th>S</th><th>M</th><th>Instrument</th><th>Volume</th></tr></thead>");
       Channels.each(function(channel){
         
