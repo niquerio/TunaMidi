@@ -51,7 +51,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     template: _.template(templates.player),
     updateTime: function() {
      $("#currentTime").text(this.timeFormatting(MIDI.Player.currentTime));    
-     this.mySlider.slider('setValue', this.getSeconds(MIDI.Player.currentTime));
+     this.progressBar.slider('setValue', this.getSeconds(MIDI.Player.currentTime));
     },
     getInstruments: function(){
                       this.model.active_channels.forEach(function(element, index){
@@ -94,7 +94,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         MIDI.Player.stop();
         this.model.currentTime=0;
         $('#currentTime').text('0:00');
-        this.mySlider.slider('setValue', 0);
+        this.progressBar.slider('setValue', 0);
     },
     
     addAllChannels: function(){
@@ -124,7 +124,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
             duration: this.timeFormatting(this.model.get('endTime')/1000), 
             currentTime: this.timeFormatting(this.model.get('currentTime')/1000),
           }));
-         this.mySlider = player.find('.slider').slider({
+         this.progressBar = player.find('.slider').slider({
              value: this.getSeconds(this.model.get('currentTime')),
              max: this.getSeconds(this.model.get('endTime')),
              tooltip: 'hide',
@@ -149,11 +149,37 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
          }).on('slide', function(slideEvent){
               $('#currentTime').text(self.timeFormatting(slideEvent.value));
          });      
+        
+        this.volumeSlider = player.find('.masterVolume').slider({
+          value: this.model.get('masterVolume'),
+          max: 127,
+          tooltip: 'hide',
+       }).on('slideStart', function(slideEvent){
+         if($('#play-pause').hasClass('playing')){
+           MIDI.Player.pause();
+         }
+         self.model.set("masterVolume", slideEvent.value);
+         MIDI.WebAudio.masterVolume = 
+            slideEvent.value;
+       }).on('slideStop', function(slideEvent){
+         if($('#play-pause').hasClass('playing')){
+           MIDI.Player.pause();
+           MIDI.Player.resume();
+         }
+         self.model.set("masterVolume", slideEvent.value);
+         MIDI.WebAudio.masterVolume = 
+            slideEvent.value;
+       }).on('slide', function(slideEvent){
+         self.model.set("masterVolume", slideEvent.value);
+         MIDI.WebAudio.masterVolume = 
+            slideEvent.value;
+
+        }); 
 
         MIDI.Player.setAnimation(function(data, element){
           if(MIDI.Player.playing){
             $("#currentTime").text(self.timeFormatting(data.now));    
-            self.mySlider.slider('setValue', data.now >> 0);
+            self.progressBar.slider('setValue', data.now >> 0);
           }
         
         });

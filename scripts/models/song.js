@@ -1,5 +1,5 @@
 
-define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbone, MIDI ){
+define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base64'], function(_, Backbone, MIDI, loadSoundfont){
   var Song = Backbone.Model.extend({
       defaults: {
           title: 'Unknown',
@@ -9,7 +9,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
           midi_data_url: '',
           load_midi_callback: function(){},
           timeWarp: 1,
-          master_volume: 100,
+          masterVolume: 127,
           transpose: 0,
   
       },
@@ -69,7 +69,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
         endTime: 0,
         measures: new Array(),
         active_channels: new Array(),
-        master_volume: 100,
+        masterVolume: 127,
         transpose: 0,
         timeWarp: 1,
        });
@@ -95,7 +95,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
     get_active_channels: function(){
           var data = this.get('data');
           var length = data.length;
-          var instrumentsToLoad = [];
+          var instrumentsToLoad = {};
   
           for(var n = 0; n < length; n++){
               var event = data[n][0].event;
@@ -106,18 +106,18 @@ define(['underscore', 'backbone', 'lib/MIDI', 'lib/Base64'], function(_, Backbon
                          { instrument: event.programNumber,
                            mute: false,
                            solo: false,
-                           volume: 100,
+                           volume: 127,
                          };
                   }
               }
           }
           this.attributes.active_channels.forEach(function(element, index){
             instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
-            if(!MIDI.Soundfont[instrument_name]){
-              instrumentsToLoad.push(instrument_name);
+            if(!MIDI.Soundfont[instrument_name] && !instrumentsToLoad[element.instrument]){
+              instrumentsToLoad[element.instrument] = instrument_name;
             }
           });
-          MIDI.loadPlugin({instruments: instrumentsToLoad, 
+          loadSoundfont({instruments: instrumentsToLoad, 
             callback: function(){ 
               console.log('finished'); 
               MIDI.loader.stop();

@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelList', 'common', 'lib/MIDI','bootstrap', 'select2'], function($,_,Backbone,templates, Channels, Common, MIDI ){
+define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelList', 'common', 'lib/MIDI', 'helpers/loadSoundfont','bootstrap', 'select2'], function($,_,Backbone,templates, Channels, Common, MIDI, loadSoundfont ){
   var ChannelView = Backbone.View.extend({
       tagName: 'tr',
   
@@ -25,6 +25,7 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
      render: function(){
        this.$el.html( this.template(this.model.attributes) );
        this.$input = this.$('.edit');
+       this.$volume = this.$('.volumeSlider')
 
        this.$input.select2({
          data: Common.Instruments,
@@ -42,10 +43,10 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
 
          var instrument_name = MIDI.GeneralMIDI.byId[instrument.val].id;
          if(!MIDI.Soundfont[instrument_name]){
-           MIDI.loadPlugin({
-             instrument: instrument_name, 
+           loadSoundfont({
+             instruments: [instrument_name], 
              callback: function(){ 
-             if(wasPlaying){ MIDI.Player.resume(); } 
+               if(wasPlaying){ MIDI.Player.resume(); } 
                MIDI.loader.stop(); 
              },
            });
@@ -54,6 +55,34 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
          }
 
        });
+
+       //volumeSlider
+       this.$volume.slider({
+         value: this.model.get('volume'),
+         max: 127,
+         tooltip: 'hide',
+       }).on('slideStart', function(slideEvent){
+         if($('#play-pause').hasClass('playing')){
+           MIDI.Player.pause();
+         }
+         self.model.set("volume", slideEvent.value);
+         MIDI.channels[self.model.get('channel')-1].volume = 
+            slideEvent.value;
+       }).on('slideStop', function(slideEvent){
+         if($('#play-pause').hasClass('playing')){
+           MIDI.Player.pause();
+           MIDI.Player.resume();
+         }
+         self.model.set("volume", slideEvent.value);
+         MIDI.channels[self.model.get('channel')-1].volume = 
+            slideEvent.value;
+       }).on('slide', function(slideEvent){
+         self.model.set("volume", slideEvent.value);
+         MIDI.channels[self.model.get('channel')-1].volume = 
+            slideEvent.value;
+
+       });
+
        return this;
     },
     solo: function(){

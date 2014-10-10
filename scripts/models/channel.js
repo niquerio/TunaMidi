@@ -5,7 +5,7 @@ define(['underscore', 'backbone', 'lib/MIDI',], function(_, Backbone, MIDI ){
                 instrument: 0,
                 solo: false,
                 mute: false,
-                volume: 100,
+                volume: 127,
     },
     initialize: function(){
     }

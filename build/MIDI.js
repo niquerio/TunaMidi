@@ -380,9 +380,9 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		api: "webaudio"
 	};
 	var ctx;
-	var sources = {};
-	var masterVolume = 127;
-	var audioBuffers = {};
+	var sources = root.sources =  {};//niquerio: exposed sources
+	var masterVolume = root.masterVolume = 127; //niquerio: exposed masterVolume 
+	var audioBuffers = root.audioBuffers = {}; //niquerio: exposed audioBuffers
 	var audioLoader = function (instrument, urlList, index, bufferList, callback) {
 		var synth = MIDI.GeneralMIDI.byName[instrument];
 		var instrumentId = synth.number;

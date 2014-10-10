@@ -53,10 +53,13 @@ requirejs.config({
    }
 });
 
-require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path', 'lib/Loader'], function(Backbone, MIDI, Songs, AppView, path, Loader){
+require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path', 'lib/Loader', 'helpers/noteOn'], function(Backbone, MIDI, Songs, AppView, path, Loader, noteOn){
 //require(['app'], function(app){
 //  app.start();
         MIDI.loader = new widgets.Loader;
+        for(var key in MIDI.channels){
+          MIDI.channels[key].volume = 127;
+        }
         MIDI.loadPlugin( function () {
           Songs.add([
             {midi_src: path + 'spec/midi/example.mid', },
@@ -64,11 +67,13 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
             ]);
           var appView = new AppView();
           appView.render();
+          MIDI.noteOn = noteOn;
           //var playerView = new PlayerView({model: Songs.first()});
           //playerView.render();
           //app.songs.show(songsView);
           //app.player.show(playerView);
           MIDI.loader.stop();
+          
         });
   //
 });
