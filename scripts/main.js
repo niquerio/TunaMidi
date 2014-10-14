@@ -62,8 +62,9 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
         }
         MIDI.loadPlugin( function () {
           Songs.add([
-            {midi_src: path + 'spec/midi/example.mid', },
-            {midi_src: path + 'spec/midi/aucun_se_sont.midi'},
+            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi', },
+            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/alle_psallite/alle_psallite.mid'},
+            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/pucelete/pucelete.mid'},
             ]);
           var appView = new AppView();
           appView.render();

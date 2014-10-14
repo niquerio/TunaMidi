@@ -99,9 +99,22 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
   
           for(var n = 0; n < length; n++){
               var event = data[n][0].event;
-              if (typeof(event.channel) === "number" && 
-                      typeof(this.attributes.active_channels[event.channel]) === "undefined"){
-                  if(event.programNumber){    
+              if (typeof(event.channel) === "number"){  
+                if( typeof(this.attributes.active_channels[event.channel]) === "undefined" && event.ProgramNumber){
+                      this.attributes.active_channels[event.channel] = 
+                         { instrument: event.programNumber,
+                           mute: false,
+                           solo: false,
+                           volume: 127,
+                         };
+                  }else if(typeof(this.attributes.active_channels[event.channel]) === "undefined"){
+                      this.attributes.active_channels[event.channel] = 
+                         { instrument: 0,
+                           mute: false,
+                           solo: false,
+                           volume: 127,
+                         };
+                  }else if(this.attributes.active_channels[event.channel].instrument === 0 && event.ProgramNumber){
                       this.attributes.active_channels[event.channel] = 
                          { instrument: event.programNumber,
                            mute: false,
@@ -117,12 +130,14 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
               instrumentsToLoad[element.instrument] = instrument_name;
             }
           });
-          loadSoundfont({instruments: instrumentsToLoad, 
-            callback: function(){ 
-              console.log('finished'); 
-              MIDI.loader.stop();
-            },
-          });
+          if(! $.isEmptyObject(instrumentsToLoad)){
+            loadSoundfont({instruments: instrumentsToLoad, 
+              callback: function(){ 
+                console.log('finished'); 
+                MIDI.loader.stop();
+              },
+            });
+          }
     },
       initialize_measures: function(){
           var data = this.get('data');
