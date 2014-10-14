@@ -3,6 +3,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     tagName: 'div',
     initialize: function(){
       this.listenTo(Channels, 'change', this.updateChannel); 
+      this.listenTo(Channels, 'pause', this.pause); 
+      this.listenTo(Channels, 'resume', this.resume); 
 
               var self = this;
               MIDI.Player.loadFile( this.model.get('midi_data_url'),function(){ 
@@ -71,7 +73,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         $('#play-pause').removeClass('playing');
         $('#play-pause span:first-child').removeClass('glyphicon-pause');
         $('#play-pause span:first-child').addClass('glyphicon-play');
-        MIDI.Player.pause();
+        this.pause();
         this.model.set("currentTime", MIDI.Player.currentTime); 
       }
       else{
@@ -81,7 +83,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         var self = this;
         MIDI.Player.loadFile(this.model.get("midi_data_url"), function(){
           MIDI.Player.currentTime = self.model.get("currentTime");
-          MIDI.Player.resume();
+          self.resume();
         });
       }
     },
@@ -130,7 +132,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
              tooltip: 'hide',
              
          }).on('slideStart', function(){
-           MIDI.Player.pause();
+           self.pause();
            self.model.attributes.currentTime = MIDI.Player.currentTime; 
            if($('play-pause').hasClass('playing')){
               $('#play-pause').removeClass('playing');
@@ -140,7 +142,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
          }).on('slideStop', function(slideEvent){
            MIDI.Player.currentTime = slideEvent.value * 1000;
            self.model.attributes.currentTime = slideEvent.value * 1000;
-           MIDI.Player.resume();
+           self.resume();
            if($('play-pause').hasClass('playing') == false){
               $('#play-pause').addClass('playing');
               $('#play-pause span:first-child').removeClass('glyphicon-play');
@@ -156,7 +158,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
           tooltip: 'hide',
        }).on('slideStart', function(slideEvent){
          if($('#play-pause').hasClass('playing')){
-           MIDI.Player.pause();
+           self.pause();
          }
          self.model.set("masterVolume", slideEvent.value);
          MIDI.WebAudio.masterVolume = 
@@ -166,8 +168,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
          MIDI.WebAudio.masterVolume = 
             slideEvent.value;
          if($('#play-pause').hasClass('playing')){
-           MIDI.Player.pause();
-           MIDI.Player.resume();
+           self.pause();
+           self.resume();
          }
        }).on('slide', function(slideEvent){
          self.model.set("masterVolume", slideEvent.value);
@@ -194,6 +196,28 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         return player;
     },
 
+    resume: function(){
+              var self = this;
+              MIDI.Player.resume()
+        MIDI.Player.setAnimation(function(data, element){
+          if(MIDI.Player.playing){
+            $("#currentTime").text(self.timeFormatting(data.now));    
+            self.progressBar.slider('setValue', data.now >> 0);
+          }
+          if(data.now == data.end){
+            self.model.set("currentTime",  0);
+            $('#play-pause').removeClass('playing');
+            $('#play-pause span:first-child').removeClass('glyphicon-pause');
+            $('#play-pause span:first-child').addClass('glyphicon-play');
+
+          }
+        
+        });
+    },
+    pause: function(){
+             MIDI.Player.pause();
+             MIDI.Player.clearAnimation();
+    },
     getSeconds: function(n){
       n = n/1000;
       return n >> 0;

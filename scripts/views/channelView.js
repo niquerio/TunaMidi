@@ -36,7 +36,7 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
        this.$input.on("select2-selecting", function(instrument){
          var wasPlaying = MIDI.Player.playing;
          if(MIDI.Player.playing){
-           MIDI.Player.pause();
+           Channels.trigger('pause');
          }
          MIDI.programChange(self.model.get('channel')-1, instrument.val);
          self.model.set("instrument", instrument.val);
@@ -46,12 +46,12 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
            loadSoundfont({
              instruments: [instrument_name], 
              callback: function(){ 
-               if(wasPlaying){ MIDI.Player.resume(); } 
+               if(wasPlaying){ Channels.trigger('resume') } 
                MIDI.loader.stop(); 
              },
            });
          }else{
-             if(wasPlaying){ MIDI.Player.resume(); } 
+             if(wasPlaying){ Channels.trigger('resume') } 
          }
 
        });
@@ -63,15 +63,15 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
          tooltip: 'hide',
        }).on('slideStart', function(slideEvent){
          if($('#play-pause').hasClass('playing')){
-           MIDI.Player.pause();
+           Channels.trigger('pause');
          }
          self.model.set("volume", slideEvent.value);
          MIDI.channels[self.model.get('channel')-1].volume = 
             slideEvent.value;
        }).on('slideStop', function(slideEvent){
          if($('#play-pause').hasClass('playing')){
-           MIDI.Player.pause();
-           MIDI.Player.resume();
+           Channels.trigger('pause');
+           Channels.trigger('resume');
          }
          self.model.set("volume", slideEvent.value);
          MIDI.channels[self.model.get('channel')-1].volume = 
@@ -96,8 +96,8 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
         this.updateChannels();
       }
       if(MIDI.Player.playing){
-        MIDI.Player.pause();
-        MIDI.Player.resume();
+        Channels.trigger('pause');
+        Channels.trigger('resume');
       }
     },
     mute: function(){
@@ -112,8 +112,8 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
       }
 
       if(MIDI.Player.playing){
-        MIDI.Player.pause();
-        MIDI.Player.resume();
+        Channels.trigger('pause');
+        Channels.trigger('resume');
       }
     },
     updateChannels: function(){
@@ -139,6 +139,7 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
           }
         }, this);
     },
+
   }); 
  return ChannelView
 });

@@ -100,7 +100,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
           for(var n = 0; n < length; n++){
               var event = data[n][0].event;
               if (typeof(event.channel) === "number"){  
-                if( typeof(this.attributes.active_channels[event.channel]) === "undefined" && event.ProgramNumber){
+                if( typeof(this.attributes.active_channels[event.channel]) === "undefined" && event.programNumber){
                       this.attributes.active_channels[event.channel] = 
                          { instrument: event.programNumber,
                            mute: false,
@@ -114,7 +114,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
                            solo: false,
                            volume: 127,
                          };
-                  }else if(this.attributes.active_channels[event.channel].instrument === 0 && event.ProgramNumber){
+                  }else if(this.attributes.active_channels[event.channel].instrument === 0 && event.programNumber){
                       this.attributes.active_channels[event.channel] = 
                          { instrument: event.programNumber,
                            mute: false,
