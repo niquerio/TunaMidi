@@ -1,4 +1,7 @@
-define(['jquery','underscore','backbone','collections/channelList','views/channelView', 'templates', 'views/appView', 'lib/bootstrap-slider.min'],function($,_,Backbone,Channels,ChannelView,templates, AppView){
+define(['jquery','underscore','backbone','collections/channelList','views/channelView', 'templates', 'views/appView', 
+    'common',
+    'lib/bootstrap-slider.min',
+    'lib/bootstrap-touchspin',],function($,_,Backbone,Channels,ChannelView,templates, AppView, Common){
   var PlayerView = Backbone.View.extend({
     tagName: 'div',
     initialize: function(){
@@ -10,21 +13,50 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
               MIDI.Player.loadFile( this.model.get('midi_data_url'),function(){ 
                 self.addAllChannels();
                 self.initMIDIChannels();
+                MIDI.Player.transpose = self.model.get('transpose');
               });
     },
     events: {
               'click #play-pause' : 'playPause',
               'click #stop' : 'stop',
+              'blur #transpose' :  'setTranspose',
+              'blur #tempo' :  'setTempo',
+              'keypress #transpose' : 'updateTransposeOnEnter',
+              'keypress #tempo' : 'updateTempoOnEnter',
             },
     render: function(){
       var title = $('<h2>').text(this.model.get('title'))
       this.$el.append(title);
         this.$el.append(this.renderPlayer())
+        this.$el.append(this.renderOptions())
                this.$el.append( this.renderAllChannels());
               
                 return this;
     },
+    updateTransposeOnEnter: function(e){
+                     if (e.keyCode === Common.ENTER_KEY ){
+                       //this.setTranspose(e);
+                       this.transpose.blur();
+                     } 
+    },
 
+    setTranspose: function(e){
+                    var transpose = parseInt(e.target.value);
+                       if(!isNaN(transpose)){
+                         if(this.model.get("transpose") != transpose){
+                            this.model.set("transpose", transpose);
+                            MIDI.Player.transpose = transpose;
+                            if($('#play-pause').hasClass('playing')){
+                                this.pause();
+                                this.resume();
+                              }
+                         }
+                       }else{
+                         this.transpose.val(this.model.get("transpose"));
+                       }
+                  },
+    setTempo: function(e){
+                  },
     initMIDIChannels: function(){
                         var soloFlag = false;
                         this.model.get('active_channels').forEach(function(element, index){
@@ -51,6 +83,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                         };
     },
     template: _.template(templates.player),
+    optionsTemplate: _.template(templates.options),
     updateTime: function() {
      $("#currentTime").text(this.timeFormatting(MIDI.Player.currentTime));    
      this.progressBar.slider('setValue', this.getSeconds(MIDI.Player.currentTime));
@@ -118,6 +151,33 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
       channelList.append(view.render().el);
       }, this);
       return channelList
+    },
+    renderOptions: function(){
+                     var self = this;
+                     var options = $("<form>").addClass('form-inline').html(this.optionsTemplate({}));
+                     this.transpose = options.find("#transpose").TouchSpin({
+                       max: 50,
+                       min: -50,
+                       initval: this.model.get('transpose'),
+                     }).on('touchspin.on.startspin', function(){
+                       if($('#play-pause').hasClass('playing')){
+                         self.pause();
+                       }
+                     }).on('touchspin.on.stopspin', function(e){
+                       self.model.set("transpose", parseInt(e.target.value));
+                       MIDI.Player.transpose = parseInt(e.target.value);
+                       if($('#play-pause').hasClass('playing')){
+                         self.resume();
+                       }
+                     });
+
+                     this.tempo = options.find("#tempo").TouchSpin({
+                       max: 1000,
+                       min: 0,
+                       initval: this.model.get('timeWarp')*100,
+                       postfix: "%",
+                     });
+                     return options;
     },
     renderPlayer: function(){
           

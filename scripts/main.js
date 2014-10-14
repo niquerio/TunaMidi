@@ -50,10 +50,13 @@ requirejs.config({
      'select2': {
        deps: ["jquery"]
      },
+     'lib/bootstrap-touchspin': {
+         deps: ["jquery", "bootstrap"],
+     },
    }
 });
 
-require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path', 'lib/Loader', 'helpers/noteOn'], function(Backbone, MIDI, Songs, AppView, path, Loader, noteOn){
+require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path', 'lib/Loader', 'helpers/noteOn', 'helpers/noteOff'], function(Backbone, MIDI, Songs, AppView, path, Loader, noteOn, noteOff){
 //require(['app'], function(app){
 //  app.start();
         MIDI.loader = new widgets.Loader;
@@ -69,6 +72,7 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
           var appView = new AppView();
           appView.render();
           MIDI.noteOn = noteOn;
+          MIDI.noteOff = noteOff;
           //var playerView = new PlayerView({model: Songs.first()});
           //playerView.render();
           //app.songs.show(songsView);

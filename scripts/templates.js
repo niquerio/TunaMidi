@@ -5,6 +5,7 @@ define(function (require) {
     appView: require('text!templates/appView.tmpl'),
     songView: require('text!templates/songView.tmpl'),
     channelView: require('text!templates/channelView.tmpl'),
-    player: require('text!templates/player.tmpl')
+    player: require('text!templates/player.tmpl'),
+    options: require('text!templates/options.tmpl'),
   };
 });

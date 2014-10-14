@@ -3,6 +3,7 @@ var sources = MIDI.WebAudio.sources;
 var audioBuffers = MIDI.WebAudio.audioBuffers;
 
   var noteOn = function (channel, note, velocity, delay) {
+    note = note + MIDI.Player.transpose;
     var ctx = MIDI.Player.ctx;
     /// check whether the note exists
     if (!MIDI.channels[channel]) return;
