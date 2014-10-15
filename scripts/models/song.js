@@ -9,6 +9,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
           midi_data_url: '',
           load_midi_callback: function(){},
           timeWarp: 1,
+          tempo: 0,
           masterVolume: 127,
           transpose: 0,
   
@@ -72,6 +73,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
         masterVolume: 127,
         transpose: 0,
         timeWarp: 1,
+        tempo: 0,
        });
        if(/\.midi?$/.test(this.get('midi_src'))){
          var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
@@ -89,8 +91,20 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
               self.get_active_channels();
               self.initialize_measures();
               self.attributes.load_midi_callback();
+              self.get_tempo();
               }); 
   
+    },
+    get_tempo: function(){
+        var data = this.get('data');
+        var length = data.length;
+          for(var n = 0; n < length; n++){
+              var event = data[n][0].event;
+              if(event.subtype == "setTempo"){
+                  this.set('tempo' , 60000000 / event.microsecondsPerBeat); //bpm 
+                  break;
+              }
+          }
     },
     get_active_channels: function(){
           var data = this.get('data');

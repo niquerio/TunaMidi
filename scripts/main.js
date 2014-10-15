@@ -68,6 +68,7 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi', },
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/alle_psallite/alle_psallite.mid'},
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/pucelete/pucelete.mid'},
+            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'},
             ]);
           var appView = new AppView();
           appView.render();

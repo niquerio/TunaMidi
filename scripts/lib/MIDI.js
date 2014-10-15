@@ -1,1 +1,1 @@
-/Users/mrio/dev/tunamidi2/build/MIDI.js
+../../build/MIDI.js

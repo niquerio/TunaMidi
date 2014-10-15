@@ -63,10 +63,10 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         var tempo = parseInt(e.target.value);
         var self = this;
            if(!isNaN(tempo) && tempo >= 0){
-             tempo = 100 / tempo;
-             if(this.model.get("timeWarp") != tempo){
-                this.model.set("timeWarp", tempo);
-                MIDI.Player.timeWarp = tempo;
+             var timeWarp = this.model.get("tempo") / tempo ;
+             if(this.model.get("timeWarp") != timeWarp){
+                this.model.set("timeWarp", timeWarp);
+                MIDI.Player.timeWarp = timeWarp;
                 if($('#play-pause').hasClass('playing')){ this.pause(); }
                 var currentPercent = MIDI.Player.currentTime/MIDI.Player.endTime;
                 MIDI.Player.loadFile(this.model.get("midi_data_url"), function(){
@@ -81,7 +81,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 });
              }
            }else{
-             this.tempo.val(this.model.get("timeWarp")*100);
+             this.tempo.val(this.model.get("tempo")/this.model.get("timeWarp"));
            }
     },
     initMIDIChannels: function(){
@@ -201,8 +201,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                      this.tempo = options.find("#tempo").TouchSpin({
                        max: 1000,
                        min: 0,
-                       initval: 100/this.model.get('timeWarp'),
-                       postfix: "%",
+                       initval: this.model.get('tempo')/this.model.get("timeWarp"),
+                       postfix: "bpm",
                      }).on('touchspin.on.startspin', function(){
                        if($('#play-pause').hasClass('playing')){
                          self.pause();
