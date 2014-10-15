@@ -34,29 +34,56 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 return this;
     },
     updateTransposeOnEnter: function(e){
-                     if (e.keyCode === Common.ENTER_KEY ){
-                       //this.setTranspose(e);
-                       this.transpose.blur();
-                     } 
+      if (e.keyCode === Common.ENTER_KEY ){
+        this.transpose.blur();
+      } 
+    },
+    updateTempoOnEnter: function(e){
+      if (e.keyCode === Common.ENTER_KEY ){
+        this.tempo.blur();
+      } 
     },
 
     setTranspose: function(e){
-                    var transpose = parseInt(e.target.value);
-                       if(!isNaN(transpose)){
-                         if(this.model.get("transpose") != transpose){
-                            this.model.set("transpose", transpose);
-                            MIDI.Player.transpose = transpose;
-                            if($('#play-pause').hasClass('playing')){
-                                this.pause();
-                                this.resume();
-                              }
-                         }
-                       }else{
-                         this.transpose.val(this.model.get("transpose"));
-                       }
-                  },
+        var transpose = parseInt(e.target.value);
+           if(!isNaN(transpose)){
+             if(this.model.get("transpose") != transpose){
+                this.model.set("transpose", transpose);
+                MIDI.Player.transpose = transpose;
+                if($('#play-pause').hasClass('playing')){
+                    this.pause();
+                    this.resume();
+                  }
+             }
+           }else{
+             this.transpose.val(this.model.get("transpose"));
+           }
+      },
     setTempo: function(e){
-                  },
+        var tempo = parseInt(e.target.value);
+        var self = this;
+           if(!isNaN(tempo) && tempo >= 0){
+             tempo = 100 / tempo;
+             if(this.model.get("timeWarp") != tempo){
+                this.model.set("timeWarp", tempo);
+                MIDI.Player.timeWarp = tempo;
+                if($('#play-pause').hasClass('playing')){ this.pause(); }
+                var currentPercent = MIDI.Player.currentTime/MIDI.Player.endTime;
+                MIDI.Player.loadFile(this.model.get("midi_data_url"), function(){
+                  var newTime = MIDI.Player.endTime * currentPercent;
+                  self.model.set("currentTime", newTime);
+                  MIDI.Player.currentTime = newTime;
+                  self.model.set("endTime",MIDI.Player.endTime);
+                  self.progressBar.slider('setAttribute', 'max', self.getSeconds(MIDI.Player.endTime))
+                  self.progressBar.slider('setValue', self.getSeconds(MIDI.Player.currentTime))
+                  $("#duration").text(self.timeFormatting(MIDI.Player.endTime/1000));
+                  if($('#play-pause').hasClass('playing')){ self.resume(); }
+                });
+             }
+           }else{
+             this.tempo.val(this.model.get("timeWarp")*100);
+           }
+    },
     initMIDIChannels: function(){
                         var soloFlag = false;
                         this.model.get('active_channels').forEach(function(element, index){
@@ -174,9 +201,15 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                      this.tempo = options.find("#tempo").TouchSpin({
                        max: 1000,
                        min: 0,
-                       initval: this.model.get('timeWarp')*100,
+                       initval: 100/this.model.get('timeWarp'),
                        postfix: "%",
-                     });
+                     }).on('touchspin.on.startspin', function(){
+                       if($('#play-pause').hasClass('playing')){
+                         self.pause();
+                       }
+                     }).on('touchspin.on.stopspin', function(e){
+                       self.setTempo(e);
+                    });
                      return options;
     },
     renderPlayer: function(){
