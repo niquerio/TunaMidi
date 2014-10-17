@@ -53,6 +53,12 @@ requirejs.config({
      'lib/bootstrap-touchspin': {
          deps: ["jquery", "bootstrap"],
      },
+     //'lib/fontawesome-iconpicker': {
+     //    deps: ["jquery", "bootstrap"],
+     //},
+     'lib/iconpicker.js': {
+       deps: ["jquery", "bootstrap"],
+     },
    }
 });
 

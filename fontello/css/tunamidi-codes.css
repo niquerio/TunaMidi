@@ -1,0 +1,9 @@
+
+.icon-mic:before { content: '\e800'; } /* '' */
+.icon-mute:before { content: '\e801'; } /* '' */
+.icon-whole-note:before { content: '\e802'; } /* '' */
+.icon-eighth-note:before { content: '\e803'; } /* '' */
+.icon-dotted-quarter-note:before { content: '\e804'; } /* '' */
+.icon-quarter-note:before { content: '\e805'; } /* '' */
+.icon-half-note:before { content: '\e806'; } /* '' */
+.icon-dotted-half-note:before { content: '\e807'; } /* '' */

@@ -1,5 +1,5 @@
 
-define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base64'], function(_, Backbone, MIDI, loadSoundfont){
+define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base64'], function(_, Backbone, MIDI, loadSoundfont){
   var Song = Backbone.Model.extend({
       defaults: {
           title: 'Unknown',
@@ -9,9 +9,11 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
           midi_data_url: '',
           load_midi_callback: function(){},
           timeWarp: 1,
-          tempo: 0,
+          tempo: 0, //quarter-note = bpm
           masterVolume: 127,
           transpose: 0,
+          denominator: 4,
+          countBy: 'quarter-note', 
   
       },
   
@@ -74,6 +76,8 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
         transpose: 0,
         timeWarp: 1,
         tempo: 0,
+        denominator: 4,
+        countBy: 1, //fraction of quarterNote
        });
        if(/\.midi?$/.test(this.get('midi_src'))){
          var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
@@ -104,6 +108,27 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','lib/Base6
                   this.set('tempo' , 60000000 / event.microsecondsPerBeat); //bpm 
                   break;
               }
+          }
+          for(var n = 0; n < length; n++){
+              var event = data[n][0].event;
+              if(event.subtype == "timeSignature"){
+                this.set('denominator', event.denominator);
+                  break;
+              }
+          }
+          switch(this.get("denominator")){
+            case 4:
+              this.set("countBy", 'quarter-note');
+              break;
+            case 8:
+              this.set("countBy", 'dotted-quarter-note');
+              break;
+            case 2:
+              this.set("countBy", 'half-note');
+              break;
+            default:
+              this.set("countBy", 'quarter-note');
+              break;
           }
     },
     get_active_channels: function(){

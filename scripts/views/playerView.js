@@ -1,7 +1,9 @@
 define(['jquery','underscore','backbone','collections/channelList','views/channelView', 'templates', 'views/appView', 
     'common',
     'lib/bootstrap-slider.min',
-    'lib/bootstrap-touchspin',],function($,_,Backbone,Channels,ChannelView,templates, AppView, Common){
+    'lib/bootstrap-touchspin',
+    'lib/iconpicker',
+    ], function($,_,Backbone,Channels,ChannelView,templates, AppView, Common){
   var PlayerView = Backbone.View.extend({
     tagName: 'div',
     initialize: function(){
@@ -40,7 +42,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     },
     updateTempoOnEnter: function(e){
       if (e.keyCode === Common.ENTER_KEY ){
-        this.tempo.blur();
+        this.$tempo.blur();
       } 
     },
 
@@ -60,7 +62,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            }
       },
     setTempo: function(e){
-        var tempo = parseInt(e.target.value);
+        var tempo = parseInt(e.target.value) * Common.NoteValues[this.model.get("countBy")];
         var self = this;
            if(!isNaN(tempo) && tempo >= 0){
              var timeWarp = this.model.get("tempo") / tempo ;
@@ -81,7 +83,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 });
              }
            }else{
-             this.tempo.val(this.model.get("tempo")/this.model.get("timeWarp"));
+             this.$tempo.val(this.model.get("tempo")/Common.NoteValues[this.model.get("countBy")]/this.model.get("timeWarp"));
            }
     },
     initMIDIChannels: function(){
@@ -181,7 +183,9 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     },
     renderOptions: function(){
                      var self = this;
-                     var options = $("<form>").addClass('form-inline').html(this.optionsTemplate({}));
+                     var options = $("<form>").addClass('form-inline').html(this.optionsTemplate({
+                       countBy: this.model.get("countBy"), 
+                     }));
                      this.transpose = options.find("#transpose").TouchSpin({
                        max: 50,
                        min: -50,
@@ -198,10 +202,10 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                        }
                      });
 
-                     this.tempo = options.find("#tempo").TouchSpin({
+                     this.$tempo = options.find("#tempo").TouchSpin({
                        max: 1000,
                        min: 0,
-                       initval: this.model.get('tempo')/this.model.get("timeWarp"),
+                       initval: this.model.get('tempo')/Common.NoteValues[this.model.get('countBy')]/this.model.get("timeWarp"),
                        postfix: "bpm",
                      }).on('touchspin.on.startspin', function(){
                        if($('#play-pause').hasClass('playing')){
@@ -210,6 +214,22 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                      }).on('touchspin.on.stopspin', function(e){
                        self.setTempo(e);
                     });
+
+                     this.$countBy = options.find(".countBy").iconpicker({
+                       icons: [
+                       'icon-eighth-note',
+                       'icon-quarter-note', 
+                       'icon-dotted-quarter-note' , 
+                       'icon-half-note',
+                       'icon-dotted-half-note',
+                       'icon-whole-note',
+                       ],  
+                     }).on("iconpickerSelected", function(e){
+                        var countBy = e.iconpickerValue.replace(/icon-/, '');
+                        self.model.set("countBy", countBy);
+                        self.$tempo.val(self.model.get("tempo")/Common.NoteValues[countBy]/self.model.get("timeWarp"));
+                        self.$countBy.dropdown('toggle');
+                     });
                      return options;
     },
     renderPlayer: function(){
