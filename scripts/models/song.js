@@ -4,6 +4,8 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
       defaults: {
           title: 'Unknown',
           currentTime: 0,
+          currentMeasure: 1,
+          measureRange: [1, 1],
           endTime: 0,
           midi_src:  '',
           midi_data_url: '',
@@ -14,6 +16,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
           transpose: 0,
           denominator: 4,
           countBy: 'quarter-note', 
+          repeat: false,
   
       },
   
@@ -69,8 +72,10 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
     load_midi: function(){
        this.set({
         currentTime: 0,
+        currentMeasure: 1,
         endTime: 0,
         measures: new Array(),
+        measureRange: [1, 1],
         active_channels: new Array(),
         masterVolume: 127,
         transpose: 0,
@@ -78,6 +83,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
         tempo: 0,
         denominator: 4,
         countBy: 1, //fraction of quarterNote
+        repeat: false,
        });
        if(/\.midi?$/.test(this.get('midi_src'))){
          var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
@@ -216,8 +222,9 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
               }
   
           }
-          this.attributes.lastMeasureToBePlayed = this.attributes.measures.length - 1;
+          this.attributes.lastMeasureToBePlayed = this.attributes.measures.length - 2;
           this.attributes.firstMeasureToBePlayed = 1;
+          this.attributes.measureRange[1] = this.attributes.measures.length - 2;
   
       }
   

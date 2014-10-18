@@ -7,5 +7,6 @@ define(function (require) {
     channelView: require('text!templates/channelView.tmpl'),
     player: require('text!templates/player.tmpl'),
     options: require('text!templates/options.tmpl'),
+    measures: require('text!templates/measures.tmpl'),
   };
 });
