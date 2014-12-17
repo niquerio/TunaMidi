@@ -174,27 +174,25 @@ describe("Song Model", function(){
         song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
 
    });
-  it("Should reset master_volume, transpose, timeWarp when new midi is loaded.", function(){
+  it("Should reset masterVolume, transpose, timeWarp when new midi is loaded.", function(){
      
          var song = new Song({
              midi_src: path + 'spec/midi/example.mid',
         }); 
         song.set({
-            master_volume: 50,
+            masterVolume: 50,
             transpose: 3,
             timeWarp: 2,
          });
-         expect(song.get('master_volume')).toBe(50);
+         expect(song.get('masterVolume')).toBe(50);
          expect(song.get('transpose')).toBe(3);
          expect(song.get('timeWarp')).toBe(2);
             
         song.set('midi_src', path + 'spec/midi/aucun_se_sont.midi', {validate: true});
-         expect(song.get('master_volume')).toBe(100);
+         expect(song.get('masterVolume')).toBe(127);
          expect(song.get('transpose')).toBe(0);
          expect(song.get('timeWarp')).toBe(1);
   });
 
-  it("", function(){
-  });
 });
 });

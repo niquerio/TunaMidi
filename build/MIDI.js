@@ -1065,7 +1065,7 @@ var startAudio = function (currentTime, fromCache) {
 		if (typeof (currentTime) === "undefined") currentTime = root.restart;
 		if (root.playing) stopAudio();
 		root.playing = true;
-		root.data = root.replayer.getData();
+		//root.data = root.replayer.getData(); @niquerio
 		root.endTime = getLength();
 	}
 	var note;

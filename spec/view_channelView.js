@@ -1,4 +1,4 @@
-define(["path", "models/channel", "views/channelView", 'jquery', "text!templates/channelView.html", 'jasmine-jquery', ], function(path, Channel, ChannelView, $, channelViewTemplate){
+define(["path", "models/channel", "views/channelView", 'jquery', "templates", 'jasmine-jquery', ], function(path, Channel, ChannelView, $, templates){
    describe("ChannelView View", function(){
 
 
@@ -36,7 +36,7 @@ define(["path", "models/channel", "views/channelView", 'jquery', "text!templates
          // let's use jasmine-jquery's toContain() to avoid
          // testing for the complete content of a todo's markup
          expect(this.channelView.el.innerHTML)
-           .toContain('<td class="mute">');
+           .toContain('<td class="volume">');
        });
 
     }); //Rendering

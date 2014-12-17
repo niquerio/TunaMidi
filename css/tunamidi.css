@@ -21,7 +21,7 @@ h1, h2, h3, h4 {
 }
 
 #progressBar{
-  width:500px;
+  width:50%;
 }
 #progressBar .slider-handle{
 height: 0px;
@@ -30,6 +30,10 @@ width: 0px;
 
 #volume {
 width: 100px;
+}
+
+#measuresSlider{
+  width:50%;
 }
 
 #songList li .edit{

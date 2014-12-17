@@ -1,4 +1,4 @@
-define(["path", "models/song", "views/songView", 'jquery', "text!templates/songView.html", 'jasmine-jquery', ], function(path, Song, SongView, $, songViewTemplate){
+define(["path", "models/song", "views/songView", 'jquery', "templates", 'jasmine-jquery', ], function(path, Song, SongView, $, templates){
    describe("SongView View", function(){
 
     
@@ -44,7 +44,7 @@ define(["path", "models/song", "views/songView", 'jquery', "text!templates/songV
          $('#songList').append(this.songView.render().el);
        });
        it('has the correct text content', function(){
-         expect($('#songList').find('.songTitle'))
+         expect($('#songList').find('.title'))
         .toHaveText('example');
        });
     });

@@ -1,22 +1,33 @@
-define(['jquery','underscore','path','models/song','models/channel','views/playerView', 'collections/channelList', 'jasmine-jquery', 'lib/bootstrap-slider.min', 'bootstrap'],function($,_,path,Song,Channel,PlayerView,Channels){
+define([
+    'jquery',
+    'underscore',
+    'path',
+    'models/song',
+    'models/channel',
+    'views/playerView', 
+    'collections/channelList', 
+    'jasmine-jquery', 
+    'lib/bootstrap-slider.min', 
+    'bootstrap'],function($,_,path,Song,Channel,PlayerView,Channels){
   describe("Player View", function(){
-
-    var song;
+   var song;
     
-     beforeEach(function(){
-       setFixtures('<div id="playerContainer"><div id="player"></div><table id="channelList"></table></div>');
-       var self = this;
-       var song = new Song({midi_src: path + 'spec/midi/aucun_se_sont.midi',
+     beforeEach(function(done){
+       setFixtures('<div id="playerContainer"></div>');
+       song = new Song({midi_src: path + 'spec/midi/aucun_se_sont.midi',
          load_midi_callback: function(){
-           self.playerView = new PlayerView({model: this});
          }, 
        }); 
+      this.playerView = new PlayerView({model: song});
       
-       this.active_channels = this.playerView.model.active_channels;
+      this.active_channels = this.playerView.model.get('active_channels');
+      $('#playerContainer').append(this.playerView.render().el);
+      done();
      });
+
      afterEach(function(){
+       MIDI.Player.stop();
        this.playerView.remove();
-       $('#channelList').remove();
        $('#playerContainer').remove();
        //song.destroy();
        Channels.reset();
@@ -32,29 +43,24 @@ define(['jquery','underscore','path','models/song','models/channel','views/playe
         Channels.reset();
         Channels.add({channel: 3});
         expect(Channels.length).toBe(1);
-        var song = new Song({midi_src: path + 'spec/midi/rachmaninov3.mid',
+        var song = new Song({midi_src: path + 'spec/midi/aucun_se_sont.midi',
         load_midi_callback: function(){
-          expect(Channels.length).toBe(1);
-          var player = new PlayerView({ model: this}); 
-          expect(Channels.length).toBe(11);
         } 
       });
+        expect(Channels.length).toBe(1);
+          var player = new PlayerView({ model: song}); 
+          expect(Channels.length).toBe(3);
+          player.remove();
     });
 
-    it("Should add Channel to channelList table", function(){
-      var channel = new Channel({channel: 3});
-      this.playerView.renderOneChannel(channel);
-      expect($('#channelList')).toContainText('VOLUME');
-    }); 
     it("Should add all channels in Channels to channelList table", function() {
-      expect($('#channelList').find('thead')).not.toContainText('Instrument');
-      this.playerView.renderAllChannels();
-      expect($('#channelList').find('thead')).toContainText('Instrument');
-      var first = $('#channelList').find('tbody').children('tr:first');
+      expect($('#playerContainer').find('thead')).toContainText('Instrument');
+      var first = $('#playerContainer').find('tbody').children('tr:first');
       expect(first).toContainText('Harpsichord');
       
     });
     it("Should play loaded midi when play button is clicked", function(){
+
       expect($('#play-pause')).not.toHaveClass('playing');
       expect($('#play-pause span:first-child')).toHaveClass("glyphicon-play");
       expect(MIDI.Player.playing).toBe(false);
@@ -67,9 +73,9 @@ define(['jquery','underscore','path','models/song','models/channel','views/playe
     });
 
     it("Should pause loaded midi after having played", function(done){
-      expect(this.playerView.model.currentTime).toBe(0);
+      expect(this.playerView.model.get('currentTime')).toBe(0);
       $('#play-pause').click();
-      expect(this.playerView.model.currentTime).toBe(0);
+      expect(this.playerView.model.get('currentTime')).toBe(0);
       expect(MIDI.Player.playing).toBe(true);
       expect($('#play-pause span:first-child')).toHaveClass("glyphicon-pause");
       self=this;
@@ -77,13 +83,13 @@ define(['jquery','underscore','path','models/song','models/channel','views/playe
         $('#play-pause').click();
         expect($('#play-pause span:first-child')).toHaveClass("glyphicon-play");
         expect(MIDI.Player.playing).toBe(false);
-        expect(self.playerView.model.currentTime).not.toBe(0);
+        expect(self.playerView.model.get('currentTime')).not.toBe(0);
         done();
       },1000);
     });
 
     it("Should stop playing Midi", function(done){
-      expect(this.playerView.model.currentTime).toBe(0);
+      expect(this.playerView.model.get('currentTime')).toBe(0);
       $('#play-pause').click();
       expect($('#play-pause')).toHaveClass('playing')
       expect($('#play-pause span:first-child')).toHaveClass("glyphicon-pause");
@@ -95,7 +101,7 @@ define(['jquery','underscore','path','models/song','models/channel','views/playe
          expect($('#play-pause')).not.toHaveClass('playing')
          expect($('#play-pause span:first-child')).toHaveClass("glyphicon-play");
          expect(MIDI.Player.playing).toBe(false);
-         expect(self.playerView.model.currentTime).toBe(0);
+         expect(self.playerView.model.get('currentTime')).toBe(0);
          done();
       },1000);
 
@@ -459,6 +465,117 @@ define(['jquery','underscore','path','models/song','models/channel','views/playe
         expect(MIDI.channels[2].mute).toBe(true)
       });   
     });   
+    describe("Measure Range", function(){
+      it("Should start at the start of the measure range", function(){
+      });
+      it("The last measure played should be the one before the last measure of measureRange", function(){
+      });
+      it("Should work properly when there's an intro", function(){
+});
+    });
+    describe("Intro Clicks", function(){
+        it("Should default to clicks turned off", function(){
+          expect(this.playerView.model.get("intro")).toBe(false);
+        });
+
+        it("Should default to 4 clicks of default countBy Value", function(){
+          expect(this.playerView.model.get("intro_numberOfBeats")).toBe(4);
+          expect(this.playerView.model.get("intro_countBy")).toBe('half-note');
+          expect(this.playerView.model.get("intro_countBy")).toBe(this.playerView.model.get("countBy"));
+        });
+
+        it("Should put clicks at start of song", function(done){
+          var count = 0;
+          var clicks = [];
+          var first_real_note_channel = 16; //should not be this;
+          MIDI.Player.addListener(function(data){
+            if(count == 4){
+              first_real_note_channel = data.channel;
+              expect(first_real_note_channel).not.toBe(16);
+              expect(clicks.toString()).toBe([16,16,16,16].toString());
+              done();
+            }
+            if(count < 4){
+              count++
+              clicks.push(data.channel);
+            }
+          });
+
+
+          $('#play-pause').click();
+        });
+
+        it("Should put clicks at first measure of measureRange", function(done){
+          var count = 0;
+          var clicks = [];
+          var first_real_note_channel = 16; //should not be this;
+          MIDI.Player.addListener(function(data){
+            if(count == 4){
+              first_real_note_channel = data.channel;
+              expect(first_real_note_channel).not.toBe(16);
+              expect(clicks.toString()).toBe([16,16,16,16].toString());
+              count++
+              done();
+            }
+            if(count < 4){
+              count++
+              clicks.push(data.channel);
+            }
+          });
+
+          this.playerView.$measuresSlider.slider('setValue', [5,10]);
+            var e = $.Event("slideStop", {value: [5,10]});
+            this.playerView.$measuresSlider.trigger(e);
+          $('#intro').click();
+          $('#play-pause').click();
+          
+        });
+        it("Should handle measureRange with weird timeWarp Properties", function(done){
+          var count = 0;
+          var clicks = [];
+          var first_real_note_channel = 16; //should not be this;
+          MIDI.Player.addListener(function(data){
+            if(count == 4){
+              first_real_note_channel = data.channel;
+              expect(first_real_note_channel).not.toBe(16);
+              expect(clicks.toString()).toBe([16,16,16,16].toString());
+              count++
+              done();
+            }
+            if(count < 4){
+              count++
+              clicks.push(data.channel);
+            }
+          });
+
+          $("#tempo").val('111').blur();
+          this.playerView.$measuresSlider.slider('setValue', [6,13]);
+            var e = $.Event("slideStop", {value: [6,13]});
+            this.playerView.$measuresSlider.trigger(e);
+          $('#intro').click();
+          $('#play-pause').click();
+        });
+
+        it("Should not put in clicks when resuming from seeking", function(){
+        });
+
+        it("Should be able to change number of starting clicks", function(){
+        });
+
+        it("Should be able to change countBy note of clicks", function(){
+        });
+
+        it("Should adjust values appropriately based on timeWarp", function(){
+        });
+
+        it("After turning intro off while playing, seeking to the beginning should not have clicks", function(){
+        });
+
+        it("Should handle songs where there is no note event at a measure", function(){
+        });
+    });
+    describe("Metronome", function(){
+    });
   });
 });
 

@@ -8,7 +8,7 @@ define(["models/channel", "path"], function(Channel, path){
       expect(channel.get('instrument')).toBe(0);
       expect(channel.get('mute')).toBe(false);
       expect(channel.get('solo')).toBe(false);
-      expect(channel.get('volume')).toBe(100);
+      expect(channel.get('volume')).toBe(127);
     });
 
   });

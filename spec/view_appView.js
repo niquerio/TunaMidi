@@ -1,4 +1,7 @@
-define(["jquery", "views/appView", "models/song", "collections/songList", "path"],function($, AppView, Song, Songs, path){
+define(["jquery", "views/appView", "models/song", "collections/songList", 
+    "path",
+    "jasmine-jquery",
+    ],function($, AppView, Song, Songs, path){
   describe("AppView View", function(){
      beforeEach(function(){
        this.appView = new AppView();
@@ -11,7 +14,8 @@ define(["jquery", "views/appView", "models/song", "collections/songList", "path"
        Songs.reset();
      });
     it("Should add song to songList ul", function(){
-      this.appView.addOneSong(new Song({midi_src: path + 'spec/midi/example.mid'}));
+      var song = new Song({midi_src: path + 'spec/midi/example.mid'})
+      this.appView.addOneSong(song);
       expect($('#songList')).toContainText('example');
     });
 
