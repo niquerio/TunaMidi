@@ -53,9 +53,6 @@ requirejs.config({
      'lib/bootstrap-touchspin': {
          deps: ["jquery", "bootstrap"],
      },
-     //'lib/fontawesome-iconpicker': {
-     //    deps: ["jquery", "bootstrap"],
-     //},
      'lib/iconpicker.js': {
        deps: ["jquery", "bootstrap"],
      },
@@ -69,12 +66,14 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
         for(var key in MIDI.channels){
           MIDI.channels[key].volume = 127;
         }
-        MIDI.loadPlugin( function () {
+        MIDI.loadPlugin({instruments:[ 'synth_drum' ],
+            callback: function () {
           Songs.add([
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi', },
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/alle_psallite/alle_psallite.mid'},
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/pucelete/pucelete.mid'},
             {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'},
+            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/aucun_se_sont/aucun_se_sont.midi'},
             ]);
           var appView = new AppView();
           appView.render();
@@ -86,6 +85,6 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
           //app.player.show(playerView);
           MIDI.loader.stop();
           
-        });
+        },});
   //
 });

@@ -1,5 +1,5 @@
 
-define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base64'], function(_, Backbone, MIDI, loadSoundfont){
+define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 'lib/Base64'], function(_, Backbone, MIDI, loadSoundfont, Common){
   var Song = Backbone.Model.extend({
       defaults: {
           title: 'Unknown',
@@ -17,6 +17,11 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
           denominator: 4,
           countBy: 'quarter-note', 
           repeat: false,
+          intro_numberOfBeats: 4,
+          intro_countBy: 'quarter-note', 
+          intro: false,
+          metronome: false,
+          metronome_countBy: 'quarter-note',
   
       },
   
@@ -82,8 +87,13 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
         timeWarp: 1,
         tempo: 0,
         denominator: 4,
-        countBy: 1, //fraction of quarterNote
+        countBy: 'quarter-note', //fraction of quarterNote
         repeat: false,
+        intro_numberOfBeats: 4,
+        intro_countBy: 'quarter-note', 
+        intro: false,
+        metronome: false,
+        metronome_countBy: 'quarter-note',
        });
        if(/\.midi?$/.test(this.get('midi_src'))){
          var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
@@ -125,15 +135,23 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
           switch(this.get("denominator")){
             case 4:
               this.set("countBy", 'quarter-note');
+              this.set("intro_countBy", 'quarter-note');
+              this.set("metronome_countBy", 'quarter-note');
               break;
             case 8:
               this.set("countBy", 'dotted-quarter-note');
+              this.set("intro_countBy", 'dotted-quarter-note');
+              this.set("metronome_countBy", 'dotted-quarter-note');
               break;
             case 2:
               this.set("countBy", 'half-note');
+              this.set("intro_countBy", 'half-note');
+              this.set("metronome_countBy", 'half-note');
               break;
             default:
               this.set("countBy", 'quarter-note');
+              this.set("intro_countBy", 'quarter-note');
+              this.set("metronome_countBy", 'quarter-note');
               break;
           }
     },
@@ -171,15 +189,16 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
           }
           this.attributes.active_channels.forEach(function(element, index){
             instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
-            if(!MIDI.Soundfont[instrument_name] && !instrumentsToLoad[element.instrument]){
+            if(!Common.InstrumentsToLoad.hasOwnProperty(instrument_name) && !instrumentsToLoad[element.instrument]){
               instrumentsToLoad[element.instrument] = instrument_name;
+              Common.InstrumentsToLoad[instrument_name] = '';
             }
           });
           if(! $.isEmptyObject(instrumentsToLoad)){
             loadSoundfont({instruments: instrumentsToLoad, 
               callback: function(){ 
                 console.log('finished'); 
-                MIDI.loader.stop();
+                if(MIDI.loader){ MIDI.loader.stop(); }
               },
             });
           }
@@ -200,6 +219,7 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont', 'lib/Base
               var event = data[i][0].event;
               if( event.type === "meta" && event.subtype === "setTempo"){
                   miliSecondsPerBeat = event.microsecondsPerBeat * this.attributes.timeWarp / 1000;
+                  this.set("miliSecondsPerQuarter", miliSecondsPerBeat);
                   measureLength = miliSecondsPerBeat * beatsPerMeasure;
   
               }

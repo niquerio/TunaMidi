@@ -1,12 +1,18 @@
-<label>Transpose (semitone)</label>
-<input class="form-control" type="text" id="transpose">
-<label>Tempo</label>
-  <div class="btn-group">
-    <button data-selected="icon-<%= countBy %>" type="button" class="countBy btn btn-default dropdown-toggle iconpicker-component" data-toggle="dropdown">
-      <i class="fa fa-fw"></i>
-      <span class="caret"></span>
-    </button>
-    <div class="dropdown-menu"></div>
+<form class="form-inline">
+  <div class="form-group">
+    <label>Transpose</label>
+    <input class="form-control" type="text" id="transpose">
   </div>
+  <div class="form-group">
+  <label>Tempo</label>
+    <div class="btn-group">
+      <button data-selected="icon-<%= countBy %>" type="button" class="countBy btn btn-default dropdown-toggle iconpicker-component" data-toggle="dropdown">
+        <i class="fa fa-fw"></i>
+        <span class="caret"></span>
+      </button>
+      <div class="dropdown-menu"></div>
+    </div>
   =
   <input class="form-control" type="text" id="tempo">
+  </div>
+</form>

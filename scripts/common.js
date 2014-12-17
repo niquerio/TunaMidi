@@ -12,8 +12,11 @@ NoteValues: {
                'dotted-half-note': 3,
                'whole-note': 4,
              },
-
+InstrumentsToLoad: {
+                     'synth_drum': '',
+                   },
                  
   }
+
 
 });

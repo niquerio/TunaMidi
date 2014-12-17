@@ -42,7 +42,8 @@ define(['jquery', 'underscore', 'backbone', 'templates', 'collections/channelLis
          self.model.set("instrument", instrument.val);
 
          var instrument_name = MIDI.GeneralMIDI.byId[instrument.val].id;
-         if(!MIDI.Soundfont[instrument_name]){
+         if(!Common.InstrumentsToLoad.hasOwnProperty(instrument_name)){
+           Common.InstrumentsToLoad[instrument_name] = '';
            loadSoundfont({
              instruments: [instrument_name], 
              callback: function(){ 
