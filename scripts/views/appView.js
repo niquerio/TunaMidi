@@ -9,8 +9,6 @@ define([
   var AppView = Backbone.View.extend({
     el: 'body',
     template: _.template('<ul id="songList"></ul>'),
-    //childView: SongView,
-    //childViewContainer: '#songList',
     initialize: function(){
           this.listenTo(Songs, 'load', this.loadSong);
           this.listenTo(Songs, 'myError', this.badFile); 
@@ -50,7 +48,7 @@ define([
         var reader = new FileReader();
         reader.readAsDataURL(f);
         reader.onload = function() {
-             Songs.add({'midi_src': reader.result});
+             Songs.create({'midi_src': reader.result});
              self.render();
         }
         reader.onerror = function(e) {

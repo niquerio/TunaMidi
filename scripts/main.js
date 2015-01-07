@@ -8,7 +8,7 @@ requirejs.config({
       "bootstrap" : "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min",
       "marionette" : 'lib/backbone.marionette',
       "select2" : "//cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min",
-      "localstorage": "lib/backbone.localStorage
+      "localstorage": "lib/backbone.localStorage",
     },
     "shim": {
       'underscore': {
@@ -69,13 +69,16 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
         }
         MIDI.loadPlugin({instruments:[ 'synth_drum' ],
             callback: function () {
-          Songs.add([
-            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/la_bionda_trecca/la_bionda_trecca_trans_up_fifth.midi', },
-            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/alle_psallite/alle_psallite.mid'},
-            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/pucelete/pucelete.mid'},
-            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'},
-            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/aucun_se_sont/aucun_se_sont.midi'},
-            ]);
+//                Songs.create( 
+//            {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'}
+//        );
+        //  Songs.add([
+        //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/alle_psallite/alle_psallite.mid'},
+        //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/pucelete/pucelete.mid'},
+        //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'},
+        //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/aucun_se_sont/aucun_se_sont.midi'},
+        //    ]);
+          Songs.fetch();
           var appView = new AppView();
           appView.render();
           MIDI.noteOn = noteOn;

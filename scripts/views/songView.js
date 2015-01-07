@@ -30,7 +30,7 @@ define(['underscore', 'backbone', 'templates', 'views/playerView', 'common',
      close: function(){
        var value = this.$input.val().trim();
        if (value){
-         this.model.set({title: value});
+         this.model.save({title: value});
          this.$title.text(value);
        }
        this.$el.removeClass('editing');
