@@ -27,9 +27,11 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
   
       initialize: function(){
           this.listenTo(this, 'change:midi_src', this.load_midi);
+          this.listenTo(this, 'myError', console.log('myError'));
           var error = this.validate(this.attributes);
           if(error){
              console.log('Initialization Error: ' + error);
+             this.trigger('myError', this, error);
              return ;
           }else{
             this.load_midi(); 

@@ -7,7 +7,8 @@ requirejs.config({
       "text" : 'lib/text',
       "bootstrap" : "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min",
       "marionette" : 'lib/backbone.marionette',
-      "select2" : "http://ivaynberg.github.io/select2/select2-3.5.1/select2"
+      "select2" : "//cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min",
+      "localstorage": "lib/backbone.localStorage
     },
     "shim": {
       'underscore': {

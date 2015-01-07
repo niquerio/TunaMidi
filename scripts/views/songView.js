@@ -13,6 +13,9 @@ define(['underscore', 'backbone', 'templates', 'views/playerView', 'common',
       },
   
      initialize: function(){
+        this.model.on('error', function(error){
+            alert(error);
+        });
                    
      },
      edit: function(){
