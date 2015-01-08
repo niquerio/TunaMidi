@@ -11,8 +11,9 @@ define([
     template: _.template('<ul id="songList"></ul>'),
     initialize: function(){
           this.listenTo(Songs, 'load', this.loadSong);
-          this.listenTo(Songs, 'myError', this.badFile); 
           this.currentPlayerView = {};
+          
+          this.collection.fetch();
     },
     events: {
         "dragover" : "handleDragOver",
@@ -49,6 +50,7 @@ define([
         reader.readAsDataURL(f);
         reader.onload = function() {
              Songs.create({'midi_src': reader.result});
+             Songs.fetch({reset:true});
              self.render();
         }
         reader.onerror = function(e) {

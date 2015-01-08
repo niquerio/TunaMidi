@@ -10,9 +10,12 @@ define(['underscore', 'backbone', 'templates', 'views/playerView', 'common',
         'dblclick span': 'edit',
         'keypress .edit': 'updateOnEnter',
         'blur .edit': 'close',
+        'click .destroy': 'destroy',
       },
   
      initialize: function(){
+         //this.listenTo(this.model, 'change', this.render);
+          this.listenTo(this.model, 'destroy', this.remove); 
         this.model.on('error', function(error){
             alert(error);
         });
@@ -26,6 +29,10 @@ define(['underscore', 'backbone', 'templates', 'views/playerView', 'common',
                      if (e.keyCode === Common.ENTER_KEY ){
                        this.close();
                      } 
+     },
+     destroy: function(){
+         this.model.destroy();
+         this.render();
      },
      close: function(){
        var value = this.$input.val().trim();

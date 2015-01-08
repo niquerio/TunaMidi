@@ -78,8 +78,8 @@ require(['backbone', 'lib/MIDI', 'collections/songList','views/appView', 'path',
         //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/extra/tantara_cries_mars/tantara_cries_mars.mid'},
         //    {midi_src: 'http://cynnabar.thedancingmaster.net/singing/myeditions/aucun_se_sont/aucun_se_sont.midi'},
         //    ]);
-          Songs.fetch();
-          var appView = new AppView();
+          //Songs.fetch({reset:true});
+          var appView = new AppView({collection: Songs});
           appView.render();
           MIDI.noteOn = noteOn;
           MIDI.noteOff = noteOff;

@@ -11,6 +11,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
       this.listenTo(Channels, 'change', this.updateChannel); 
       this.listenTo(Channels, 'pause', this.pause); 
       this.listenTo(Channels, 'resume', this.resume); 
+      this.listenTo(this.model, 'destroy', this.remove);
+      this.listenTo(this.model, 'change', this.render);
       this.metronome_click_counter = -1;
 
               var self = this;
@@ -32,6 +34,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
               'click #intro' : 'toggleIntro',
             },
     render: function(){
+        this.$el.html('');
       var title = $('<h2>').text(this.model.get('title'))
         this.$el.append(title);
         this.$el.append(this.renderPlayer())
@@ -44,12 +47,12 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 return this;
     },
     toggleRepeat: function(){
-           this.model.set("repeat", !this.model.get("repeat"));
+           this.model.save("repeat", !this.model.get("repeat"));
     },
     toggleIntro: function(){
            this.pause();
            var intro_length =  this.model.get('miliSecondsPerQuarter')*Common.NoteValues[this.model.get('intro_countBy')]*this.model.get('intro_numberOfBeats');
-           this.model.set("intro", !this.model.get("intro"));
+           this.model.save("intro", !this.model.get("intro"));
            //if(this.model.get("intro")){
            //   MIDI.Player.currentTime = MIDI.Player.currentTime + intro_length; 
            //   this.set_intro();
@@ -75,7 +78,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         var transpose = parseInt(e.target.value);
            if(!isNaN(transpose)){
              if(this.model.get("transpose") != transpose){
-                this.model.set("transpose", transpose);
+                this.model.save("transpose", transpose);
                 MIDI.Player.transpose = transpose;
                 if($('#play-pause').hasClass('playing')){
                     this.pause();
@@ -92,7 +95,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            if(!isNaN(tempo) && tempo >= 0){
              var timeWarp = this.model.get("tempo") / tempo ;
              if(this.model.get("timeWarp") != timeWarp){
-                this.model.set("timeWarp", timeWarp);
+                this.model.save("timeWarp", timeWarp);
                 MIDI.Player.timeWarp = timeWarp;
 
                 if($('#play-pause').hasClass('playing')){ this.pause(); }
@@ -103,9 +106,9 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                     //self.set_intro();
                   }
                   var newTime = MIDI.Player.endTime * currentPercent;
-                  self.model.set("currentTime", newTime);
+                  self.model.save("currentTime", newTime);
                   MIDI.Player.currentTime = newTime;
-                  self.model.set("endTime",MIDI.Player.endTime);
+                  self.model.save("endTime",MIDI.Player.endTime);
                   self.progressBar.slider('setAttribute', 'max', self.getSeconds(MIDI.Player.endTime))
                   self.progressBar.slider('setValue', self.getSeconds(MIDI.Player.currentTime))
                   $("#duration").text(self.timeFormatting(MIDI.Player.endTime/1000));
@@ -176,7 +179,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         $('#play-pause span:first-child').removeClass('glyphicon-pause');
         $('#play-pause span:first-child').addClass('glyphicon-play');
         this.pause();
-        this.model.set("currentTime", MIDI.Player.currentTime); 
+        this.model.save("currentTime", MIDI.Player.currentTime); 
       }
       else{
         $('#play-pause').addClass('playing');
@@ -202,8 +205,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         MIDI.Player.stop();
         var measures = this.model.get("measures");
         var measureRange = this.model.get("measureRange");
-        this.model.set("currentTime",measures[measureRange[0]]*this.model.get('timeWarp'));
-        this.model.set("currentMeasure",measureRange[0]);
+        this.model.save("currentTime",measures[measureRange[0]]*this.model.get('timeWarp'));
+        this.model.save("currentMeasure",measureRange[0]);
         $('#currentTime').text(this.timeFormatting(this.model.get("currentTime")/1000));
         $('#currentMeasure').text(measureRange[0]);
         this.progressBar.slider('setValue', this.getSeconds(this.model.get("currentTime")));
@@ -247,7 +250,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                          self.pause();
                        }
                      }).on('touchspin.on.stopspin', function(e){
-                       self.model.set("transpose", parseInt(e.target.value));
+                       self.model.save("transpose", parseInt(e.target.value));
                        MIDI.Player.transpose = parseInt(e.target.value);
                        if($('#play-pause').hasClass('playing')){
                          self.resume();
@@ -278,7 +281,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                        ],  
                      }).on("iconpickerSelected", function(e){
                         var countBy = e.iconpickerValue.replace(/icon-/, '');
-                        self.model.set("countBy", countBy);
+                        self.model.save("countBy", countBy);
                         self.$tempo.val(self.model.get("tempo")/Common.NoteValues[countBy]/self.model.get("timeWarp"));
                         self.$countBy.dropdown('toggle');
                      });
@@ -299,9 +302,9 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
        }).on("slideStart", function(){
            self.pause();
        }).on('slideStop', function(slideEvent){
-         self.model.set("measureRange", slideEvent.value);
+         self.model.save("measureRange", slideEvent.value);
          var measures = self.model.get("measures");
-         self.model.set("currentMeasure", slideEvent.value[0]);
+         self.model.save("currentMeasure", slideEvent.value[0]);
          $('#measureRange').text(slideEvent.value[0] + ' - ' + slideEvent.value[1]);
          $('#currentMeasure').text(slideEvent.value[0]);
          var intro_length = self.model.get('miliSecondsPerQuarter')*Common.NoteValues[self.model.get('intro_countBy')]*self.model.get('intro_numberOfBeats')
@@ -309,13 +312,13 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            if(self.model.get('intro')){
                 MIDI.Player.loadFile(self.model.get("midi_data_url"), function(){
                     //self.set_intro();
-                    self.model.set("currentTime", measures[slideEvent.value[0]]*self.model.get('timeWarp'));
+                    self.model.save("currentTime", measures[slideEvent.value[0]]*self.model.get('timeWarp'));
                     $('#currentTime').text(self.timeFormatting(self.model.get('currentTime')/1000));
                     self.progressBar.slider('setValue', self.model.get('currentTime')/1000 >> 0);
                     MIDI.Player.currentTime = self.model.get('currentTime');
                });
            }else{
-                    self.model.set("currentTime", measures[slideEvent.value[0]]*self.model.get('timeWarp'));
+                    self.model.save("currentTime", measures[slideEvent.value[0]]*self.model.get('timeWarp'));
                     $('#currentTime').text(self.timeFormatting(self.model.get('currentTime')/1000));
                     self.progressBar.slider('setValue', self.model.get('currentTime')/1000 >> 0);
                     MIDI.Player.currentTime = self.model.get('currentTime');
@@ -352,19 +355,19 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            }
          }).on('slideStop', function(slideEvent){
            MIDI.Player.currentTime = slideEvent.value * 1000;
-           self.model.set('currentTime', slideEvent.value * 1000);
+           self.model.save('currentTime', slideEvent.value * 1000);
            var measures = self.model.get('measures');
            for(n = 1; n <= measures.length; n++){
              if(measures[n]*self.model.get('timeWarp') > slideEvent.value * 1000){
-               self.model.set('currentMeasure', n-1);
+               self.model.save('currentMeasure', n-1);
                $('#currentMeasure').text(n-1);
                break;
              }
            }
            var measureRange = self.model.get('measureRange')
            if(self.model.get('currentMeasure') < measureRange[0] || self.model.get('currentMeasure') > measureRange[1]){
-             self.model.set("currentTime",measures[measureRange[0]]*self.model.get('timeWarp'));
-             self.model.set("currentMeasure",measureRange[0]);
+             self.model.save("currentTime",measures[measureRange[0]]*self.model.get('timeWarp'));
+             self.model.save("currentMeasure",measureRange[0]);
              $('#currentTime').text(self.timeFormatting(self.model.get("currentTime")/1000));
              $('#currentMeasure').text(measureRange[0]);
              self.progressBar.slider('setValue', self.getSeconds(self.model.get("currentTime")));
@@ -388,11 +391,11 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
          if($('#play-pause').hasClass('playing')){
            self.pause();
          }
-         self.model.set("masterVolume", slideEvent.value);
+         self.model.save("masterVolume", slideEvent.value);
          MIDI.WebAudio.masterVolume = 
             slideEvent.value;
        }).on('slideStop', function(slideEvent){
-         self.model.set("masterVolume", slideEvent.value);
+         self.model.save("masterVolume", slideEvent.value);
          MIDI.WebAudio.masterVolume = 
             slideEvent.value;
          if($('#play-pause').hasClass('playing')){
@@ -400,7 +403,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            self.resume();
          }
        }).on('slide', function(slideEvent){
-         self.model.set("masterVolume", slideEvent.value);
+         self.model.save("masterVolume", slideEvent.value);
          MIDI.WebAudio.masterVolume = 
             slideEvent.value;
 
@@ -451,9 +454,9 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
             }
               if(data.now*1000 > endRangeTime){
                 self.pause();
-                self.model.set("currentTime", measures[measureRange[0]]*self.model.get('timeWarp'));
+                self.model.save("currentTime", measures[measureRange[0]]*self.model.get('timeWarp'));
                 MIDI.Player.currentTime = measures[measureRange[0]]*self.model.get('timeWarp');
-                self.model.set("currentMeasure", measureRange[0]);
+                self.model.save("currentMeasure", measureRange[0]);
                 if(self.model.get("repeat")){
                   $("#currentMeasure").text(measureRange[0]);
                   self.resume();
@@ -464,16 +467,16 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 }
               }else if( data.now*1000 > nextMeasureTime){
                  var currentMeasure = self.model.get('currentMeasure') + 1;
-                  self.model.set("currentMeasure", currentMeasure);
+                  self.model.save("currentMeasure", currentMeasure);
                   $("#currentMeasure").text(currentMeasure);
               }
 
           }
           if(data.now == data.end){
             self.pause();
-            self.model.set("currentTime", measures[measureRange[0]]);
+            self.model.save("currentTime", measures[measureRange[0]]);
             MIDI.Player.currentTime = measures[measureRange[0]];
-            self.model.set("currentMeasure", measureRange[0]);
+            self.model.save("currentMeasure", measureRange[0]);
             if(self.model.get("repeat")){
               $("#currentMeasure").text(measureRange[0]);
               self.resume();
