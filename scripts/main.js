@@ -9,6 +9,7 @@ requirejs.config({
       "marionette" : 'lib/backbone.marionette',
       "select2" : "//cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min",
       "localstorage": "lib/backbone.localStorage",
+      "jasny": "//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/js/jasny-bootstrap.min",
     },
     "shim": {
       'underscore': {
@@ -19,6 +20,7 @@ requirejs.config({
          exports: "Backbone"
       },
       'bootstrap': { deps : [ "jquery" ], },
+      'jasny': { deps: ["jquery"],},
       'marionette': {
          deps: ['backbone'],
          exports: 'Backbone.Marionette',

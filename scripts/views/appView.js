@@ -5,10 +5,12 @@ define([
     "views/songView", 
     "views/playerView",  
     "common", 
-    ],function( _, Backbone, Songs, SongView, PlayerView, Common ){
+    "templates",
+    "jasny",
+    ],function( _, Backbone, Songs, SongView, PlayerView, Common, templates ){
   var AppView = Backbone.View.extend({
     el: 'body',
-    template: _.template('<ul id="songList"></ul>'),
+    template: _.template(templates.upload),
     initialize: function(){
           this.listenTo(Songs, 'load', this.loadSong);
           this.currentPlayerView = {};
@@ -45,22 +47,35 @@ define([
       this.$el.css("background-color","");
     },
     readFile: function(f){
+        var title = f.name.replace(/\.[^/.]+$/, "")
         var self = this;
         var reader = new FileReader();
         reader.readAsDataURL(f);
         reader.onload = function() {
-             Songs.create({'midi_src': reader.result});
+             Songs.create({'midi_src': reader.result, 'title':title});
+
              Songs.fetch({reset:true});
-             self.render();
+             self.addAllSongs();
         }
         reader.onerror = function(e) {
             alert("Error!: " + e);
         }
     }, 
     render: function(){
+       
+        $('#songList').before(this.render_upload());
        this.addAllSongs();
         return this;
             },
+    render_upload: function(){
+        var self = this;
+        var upload = $("<form>").html(this.template);
+        upload.find("#submit_upload").click(function(){
+           self.readFile($('#upload_file').get(0).files[0]);
+           $('.fileinput').fileinput('clear');
+        });
+        return upload;
+    },
     
     addOneSong: function(song){
                   var view = new SongView({ model: song });
