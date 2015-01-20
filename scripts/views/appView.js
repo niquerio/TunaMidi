@@ -4,15 +4,18 @@ define([
     "collections/songList", 
     "views/songView", 
     "views/playerView",  
+    "views/uploadView",  
     "common", 
     "templates",
+    "helpers/readFile",
     "jasny",
-    ],function( _, Backbone, Songs, SongView, PlayerView, Common, templates ){
+    ],function( _, Backbone, Songs, SongView, PlayerView, UploadView, Common, templates, readFile ){
   var AppView = Backbone.View.extend({
     el: 'body',
     template: _.template(templates.upload),
     initialize: function(){
           this.listenTo(Songs, 'load', this.loadSong);
+          this.listenTo(Songs, 'submitSong', this.addAllSongs);
           this.currentPlayerView = {};
           
           this.collection.fetch();
@@ -42,39 +45,34 @@ define([
       var files = evt.originalEvent.dataTransfer.files; // FileList object.
       var output = [];
       for (var i = 0, f; f = files[i]; i++) {
-          this.readFile(f); 
+          readFile(f); 
       }
       this.$el.css("background-color","");
     },
-    readFile: function(f){
-        var title = f.name.replace(/\.[^/.]+$/, "")
-        var self = this;
-        var reader = new FileReader();
-        reader.readAsDataURL(f);
-        reader.onload = function() {
-             Songs.create({'midi_src': reader.result, 'title':title});
-
-             Songs.fetch({reset:true});
-             self.addAllSongs();
-        }
-        reader.onerror = function(e) {
-            alert("Error!: " + e);
-        }
-    }, 
     render: function(){
        
-        $('#songList').before(this.render_upload());
+        self = this;
+        var uploadLink = $("<a>").addClass('noUpload').attr('href','#').text('Upload').click(function(){
+
+            if( $(this).hasClass('noUpload') ){
+                $(this).removeClass('noUpload').text('Hide Upload');
+                self.uploadView = new UploadView;
+                $(this).after(self.uploadView.render().el)
+            }
+            else{
+                $(this).addClass('noUpload').text('Upload');
+                self.uploadView.remove(); 
+               
+            }
+            
+        });
+        $('#sidebar').prepend(uploadLink);
+
+        
+        //var uploadView = new UploadView;
+        //$('#sidebar').prepend(uploadView.render().el)
        this.addAllSongs();
         return this;
-            },
-    render_upload: function(){
-        var self = this;
-        var upload = $("<form>").html(this.template);
-        upload.find("#submit_upload").click(function(){
-           self.readFile($('#upload_file').get(0).files[0]);
-           $('.fileinput').fileinput('clear');
-        });
-        return upload;
     },
     
     addOneSong: function(song){

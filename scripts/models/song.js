@@ -6,6 +6,8 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
           currentTime: 0,
           currentMeasure: 1,
           measureRange: [1, 1],
+          active_channels: new Array(),
+          measures: new Array(),
           endTime: 0,
           midi_src:  '',
           midi_data_url: '',
@@ -77,45 +79,42 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
   
   
     load_midi: function(){
-       this.set({
-        currentTime: 0,
-        currentMeasure: 1,
-        endTime: 0,
-        measures: new Array(),
-        measureRange: [1, 1],
-        active_channels: new Array(),
-        masterVolume: 127,
-        transpose: 0,
-        timeWarp: 1,
-        tempo: 0,
-        denominator: 4,
-        countBy: 'quarter-note', //fraction of quarterNote
-        repeat: false,
-        intro_numberOfBeats: 4,
-        intro_countBy: 'quarter-note', 
-        intro: false,
-        metronome: false,
-        metronome_countBy: 'quarter-note',
-       });
-       if(/\.midi?$/.test(this.get('midi_src'))){
+       if(/\.midi?$/.test(this.get('midi_src')) && this.get('title') === 'Unknown'){
          var myArray = /([\w-]+)\.midi?$/.exec(this.get('midi_src'));
          title = myArray[1];
          this.set('title', title);
-       }else{
-         title = 'Unknown';
        }
        var self = this;
-              //self.measures = new Array();
-              //self.active_channels = new Array();
           MIDI.Player.loadFile(this.get('midi_data_url'),function(){
-              self.set({data: $.extend(true, [],MIDI.Player.data) });
-              self.set({endTime: MIDI.Player.endTime});
-              self.get_active_channels();
-              self.initialize_measures();
+              if(self.get('tempo') === 0){
+                 self.set({data: $.extend(true, [],MIDI.Player.data) });
+                 self.set({endTime: MIDI.Player.endTime});
+                 self.get_active_channels();
+                 self.initialize_measures();
+                 self.get_tempo();
+              }
+              self.load_soundFont();
               self.attributes.load_midi_callback();
-              self.get_tempo();
-              }); 
+          }); 
   
+    },
+    load_soundFont: function(){
+          var instrumentsToLoad = {};
+          this.attributes.active_channels.forEach(function(element, index){
+            instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
+            if(!Common.InstrumentsToLoad.hasOwnProperty(instrument_name) && !instrumentsToLoad[element.instrument]){
+              instrumentsToLoad[element.instrument] = instrument_name;
+              Common.InstrumentsToLoad[instrument_name] = '';
+            }
+          });
+          if(! $.isEmptyObject(instrumentsToLoad)){
+            loadSoundfont({instruments: instrumentsToLoad, 
+              callback: function(){ 
+                console.log('finished'); 
+                if(MIDI.loader){ MIDI.loader.stop(); }
+              },
+            });
+          }
     },
     get_tempo: function(){
         var data = this.get('data');
@@ -160,50 +159,34 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
     get_active_channels: function(){
           var data = this.get('data');
           var length = data.length;
-          var instrumentsToLoad = {};
-  
-          for(var n = 0; n < length; n++){
-              var event = data[n][0].event;
-              if (typeof(event.channel) === "number"){  
-                if( typeof(this.attributes.active_channels[event.channel]) === "undefined" && event.programNumber){
-                      this.attributes.active_channels[event.channel] = 
-                         { instrument: event.programNumber,
-                           mute: false,
-                           solo: false,
-                           volume: 127,
-                         };
-                  }else if(typeof(this.attributes.active_channels[event.channel]) === "undefined"){
-                      this.attributes.active_channels[event.channel] = 
-                         { instrument: 0,
-                           mute: false,
-                           solo: false,
-                           volume: 127,
-                         };
-                  }else if(this.attributes.active_channels[event.channel].instrument === 0 && event.programNumber){
-                      this.attributes.active_channels[event.channel] = 
-                         { instrument: event.programNumber,
-                           mute: false,
-                           solo: false,
-                           volume: 127,
-                         };
-                  }
-              }
-          }
-          this.attributes.active_channels.forEach(function(element, index){
-            instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
-            if(!Common.InstrumentsToLoad.hasOwnProperty(instrument_name) && !instrumentsToLoad[element.instrument]){
-              instrumentsToLoad[element.instrument] = instrument_name;
-              Common.InstrumentsToLoad[instrument_name] = '';
-            }
-          });
-          if(! $.isEmptyObject(instrumentsToLoad)){
-            loadSoundfont({instruments: instrumentsToLoad, 
-              callback: function(){ 
-                console.log('finished'); 
-                if(MIDI.loader){ MIDI.loader.stop(); }
-              },
-            });
-          }
+             for(var n = 0; n < length; n++){
+                 var event = data[n][0].event;
+                 if (typeof(event.channel) === "number"){  
+                   if( typeof(this.attributes.active_channels[event.channel]) === "undefined" && event.programNumber){
+                         this.attributes.active_channels[event.channel] = 
+                            { instrument: event.programNumber,
+                              mute: false,
+                              solo: false,
+                              volume: 127,
+                            };
+                     }else if(typeof(this.attributes.active_channels[event.channel]) === "undefined"){
+                         this.attributes.active_channels[event.channel] = 
+                            { instrument: 0,
+                              mute: false,
+                              solo: false,
+                              volume: 127,
+                            };
+                     }else if(this.attributes.active_channels[event.channel].instrument === 0 && event.programNumber){
+                         this.attributes.active_channels[event.channel] = 
+                            { instrument: event.programNumber,
+                              mute: false,
+                              solo: false,
+                              volume: 127,
+                            };
+                     }
+                 }
+             }
+          
     },
       initialize_measures: function(){
           var data = this.get('data');

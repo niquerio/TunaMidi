@@ -172,6 +172,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                      current.mute = channel.get('mute');
                      current.instrument = channel.get('instrument');
                      current.volume = channel.get('volume');
+                     this.model.save();
     },
     playPause: function(){
       if( $('#play-pause').hasClass('playing')){
