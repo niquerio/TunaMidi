@@ -12,7 +12,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
       this.listenTo(Channels, 'pause', this.pause); 
       this.listenTo(Channels, 'resume', this.resume); 
       this.listenTo(this.model, 'destroy', this.remove);
-      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:title', this.refreshTitle);
       this.metronome_click_counter = -1;
 
               var self = this;
@@ -35,8 +35,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
             },
     render: function(){
         this.$el.html('');
-      var title = $('<h2>').text(this.model.get('title'))
-        this.$el.append(title);
+        this.$title = $('<h2>').text(this.model.get('title'))
+        this.$el.append(this.$title);
         this.$el.append(this.renderPlayer())
         //this.$el.append(this.renderMetronome());
         this.$el.append(this.renderMeasures())
@@ -62,6 +62,10 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            //}
            //if($('#play-pause').hasClass('playing')){ this.resume();}
 
+    },
+    refreshTitle: function(){
+        this.$title.text(this.model.get("title"));
+        
     },
     updateTransposeOnEnter: function(e){
       if (e.keyCode === Common.ENTER_KEY ){
