@@ -126,7 +126,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
     initMIDIChannels: function(){
                         var soloFlag = false;
                         this.model.get('active_channels').forEach(function(element, index){
-                            if (element.solo) soloFlag = true;
+                            if (element && element.solo) soloFlag = true;
                         });
                        for(var index in MIDI.channels){
                            if(this.model.attributes.active_channels[index]){
@@ -222,8 +222,10 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
       this.model.get('active_channels').forEach(this.addOneChannel);
     },
     addOneChannel: function(element, index){
-       element.channel = index +1;
-       Channels.add(element);
+        if(element){
+          element.channel = index +1;
+          Channels.add(element);
+        }
     },
     renderAllChannels: function(){
       channelList = $("<table>").addClass('table').attr("id", "channels");

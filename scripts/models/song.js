@@ -101,11 +101,13 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
     load_soundFont: function(){
           var instrumentsToLoad = {};
           this.attributes.active_channels.forEach(function(element, index){
+           if(element){ 
             instrument_name = MIDI.GeneralMIDI.byId[element.instrument].id;
             if(!Common.InstrumentsToLoad.hasOwnProperty(instrument_name) && !instrumentsToLoad[element.instrument]){
               instrumentsToLoad[element.instrument] = instrument_name;
               Common.InstrumentsToLoad[instrument_name] = '';
             }
+           }
           });
           if(! $.isEmptyObject(instrumentsToLoad)){
             loadSoundfont({instruments: instrumentsToLoad, 
