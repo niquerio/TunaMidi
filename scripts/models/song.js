@@ -161,6 +161,8 @@ define(['underscore', 'backbone', 'lib/MIDI', 'helpers/loadSoundfont','common', 
     get_active_channels: function(){
           var data = this.get('data');
           var length = data.length;
+          this.attributes.active_channels = [];
+          
              for(var n = 0; n < length; n++){
                  var event = data[n][0].event;
                  if (typeof(event.channel) === "number"){  
