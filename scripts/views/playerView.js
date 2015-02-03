@@ -38,7 +38,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         this.$title = $('<h2>').text(this.model.get('title'))
         this.$el.append(this.$title);
         this.$el.append(this.renderPlayer())
-        //this.$el.append(this.renderMetronome());
+//        this.$el.append(this.renderMetronome());
         this.$el.append(this.renderMeasures())
         this.$el.append(this.renderOptions())
         this.$el.append( this.renderAllChannels());
@@ -53,14 +53,14 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
            this.pause();
            var intro_length =  this.model.get('miliSecondsPerQuarter')*Common.NoteValues[this.model.get('intro_countBy')]*this.model.get('intro_numberOfBeats');
            this.model.save("intro", !this.model.get("intro"));
-           //if(this.model.get("intro")){
-           //   MIDI.Player.currentTime = MIDI.Player.currentTime + intro_length; 
-           //   this.set_intro();
-           //}else{
-           //   MIDI.Player.currentTime = MIDI.Player.currentTime - intro_length; 
-           //   this.remove_intro();
-           //}
-           //if($('#play-pause').hasClass('playing')){ this.resume();}
+           if(this.model.get("intro")){
+              MIDI.Player.currentTime = MIDI.Player.currentTime + intro_length; 
+              this.set_intro();
+           }else{
+              MIDI.Player.currentTime = MIDI.Player.currentTime - intro_length; 
+              this.remove_intro();
+           }
+           if($('#play-pause').hasClass('playing')){ this.resume();}
 
     },
     refreshTitle: function(){
@@ -107,7 +107,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                 var currentPercent = MIDI.Player.currentTime/MIDI.Player.endTime;
                 MIDI.Player.loadFile(this.model.get("midi_data_url"), function(){
                   if(self.model.get('intro')){
-                    //self.set_intro();
+                    self.set_intro();
                   }
                   var newTime = MIDI.Player.endTime * currentPercent;
                   self.model.save("currentTime", newTime);
@@ -131,6 +131,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
                        for(var index in MIDI.channels){
                            if(this.model.attributes.active_channels[index]){
                              MIDI.programChange(index, this.model.attributes.active_channels[index].instrument);
+                             MIDI.channels[index].volume = this.model.attributes.active_channels[index].volume;
                              if(this.model.attributes.active_channels[index].mute){
                                 MIDI.channels[index].mute = true;
                              }else if(this.model.attributes.active_channels[index].solo){
@@ -195,7 +196,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
           MIDI.Player.currentTime = self.model.get("currentTime");
           //self.set_metronome();
           if(self.model.get('intro')){
-            //self.set_intro();
+            self.set_intro();
           }
           self.resume();
         });
@@ -298,7 +299,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
          currentMeasure: this.model.get("currentMeasure"),
          start: this.model.get("measureRange")[0],
          finish: this.model.get("measureRange")[1],
-       }));
+       }))
        this.$measuresSlider = measures.find(".set_of_measures").slider({
         max: this.model.get("lastMeasureToBePlayed"),
          min: 1,
@@ -316,7 +317,7 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
 
            if(self.model.get('intro')){
                 MIDI.Player.loadFile(self.model.get("midi_data_url"), function(){
-                    //self.set_intro();
+                    self.set_intro();
                     self.model.save("currentTime", measures[slideEvent.value[0]]*self.model.get('timeWarp'));
                     $('#currentTime').text(self.timeFormatting(self.model.get('currentTime')/1000));
                     self.progressBar.slider('setValue', self.model.get('currentTime')/1000 >> 0);
@@ -443,12 +444,18 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         var measures = self.model.get('measures');
         var measureRange = self.model.get("measureRange");
 
-          if(MIDI.Player.playing){
-
-            $("#currentTime").text(self.timeFormatting(data.now));    
-            self.progressBar.slider('setValue', data.now >> 0);
+        if(MIDI.Player.playing){
             var intro_length = self.model.get('miliSecondsPerQuarter')*Common.NoteValues[self.model.get('intro_countBy')]*self.model.get('intro_numberOfBeats') //timeWarp???
-
+            var now = data.now * 1000;
+            if(self.model.get('intro')){
+                if(now - intro_length > self.model.get("currentTime")){
+                  $("#currentTime").text(self.timeFormatting((now - intro_length)/1000));    
+                  self.progressBar.slider('setValue', (now - intro_length)/1000);
+                }
+            }else{
+               $("#currentTime").text(self.timeFormatting(data.now));    
+               self.progressBar.slider('setValue', data.now >> 0);
+            }
 
             var endRangeTime = measures[measureRange[1]+1] * self.model.get('timeWarp');
 
@@ -457,7 +464,8 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
             }else{
               var nextMeasureTime = measures[self.model.get('currentMeasure')+1] * self.model.get('timeWarp');
             }
-              if(data.now*1000 > endRangeTime){
+
+            if(data.now*1000 > endRangeTime){
                 self.pause();
                 self.model.save("currentTime", measures[measureRange[0]]*self.model.get('timeWarp'));
                 MIDI.Player.currentTime = measures[measureRange[0]]*self.model.get('timeWarp');
@@ -557,7 +565,15 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
         }else{ //intro for unpause
           timeSoFar = timeSoFar + data[n][1];
           var measureStartTime = measures[firstMeasure]*this.model.get('timeWarp');
-          if(timeSoFar == measureStartTime){
+          if(timeSoFar == measureStartTime && this.model.get('currentTime') == measureStartTime){
+            firstClick[1] = data[n][1];
+            data[n][1] = clickLength; 
+            for(var i = 1; i < this.model.get('intro_numberOfBeats'); i++){
+              data.splice(n,0,click);
+            }
+            data.splice(n,0,firstClick);
+            break;
+          }else if(timeSoFar >= this.model.get('currentTime')){
             firstClick[1] = data[n][1];
             data[n][1] = clickLength; 
             for(var i = 1; i < this.model.get('intro_numberOfBeats'); i++){
@@ -566,42 +582,43 @@ define(['jquery','underscore','backbone','collections/channelList','views/channe
             data.splice(n,0,firstClick);
             break;
           }
-          else if(timeSoFar > measureStartTime){
-            var netTimePastMeasureStart = data[n][1]
-            var totalTimeBeforeMeasureStart = timeSoFar - netTimePastMeasureStart;
-            var netTimeAtMeasureStart = measureStartTime - totalTimeBeforeMeasureStart;
 
-            //Not Really Working
-            if(netTimeAtMeasureStart < 1){
-              firstClick[1] = 6* netTimeAtMeasureStart;
-              var flag = 0;
-              for(var i = n-1; i > 0; i--){
-                
-                if(data[i][1] && flag == 0){
-                  flag = 1;
-                  data[i][1] = clickLength + netTimeAtMeasureStart; 
-                  for(var j = 1; j < this.model.get('intro_numberOfBeats'); j++){
-                    data.splice(i,0,click);
-                  }
-                  data.splice(i,0,firstClick);
-                }else if(data[i][1] && flag == 1){
-                    data[i][1] = data[i][1] + 1000;
-                  break;
-                }
+          //else if(timeSoFar > measureStartTime){
+          //  var netTimePastMeasureStart = data[n][1]
+          //  var totalTimeBeforeMeasureStart = timeSoFar - netTimePastMeasureStart;
+          //  var netTimeAtMeasureStart = measureStartTime - totalTimeBeforeMeasureStart;
+
+          //  //Not Really Working
+          //  if(netTimeAtMeasureStart < 1){
+          //    firstClick[1] = 6* netTimeAtMeasureStart;
+          //    var flag = 0;
+          //    for(var i = n-1; i > 0; i--){
+          //      
+          //      if(data[i][1] && flag == 0){
+          //        flag = 1;
+          //        data[i][1] = clickLength + netTimeAtMeasureStart; 
+          //        for(var j = 1; j < this.model.get('intro_numberOfBeats'); j++){
+          //          data.splice(i,0,click);
+          //        }
+          //        data.splice(i,0,firstClick);
+          //      }else if(data[i][1] && flag == 1){
+          //          data[i][1] = data[i][1] + 1000;
+          //        break;
+          //      }
     
-              }
-              break;
-            }else{
-              firstClick[1] = netTimeAtMeasureStart;
-              data[n][1] = clickLength + netTimePastMeasureStart - netTimeAtMeasureStart;
-              for(var i = 1; i < this.model.get('intro_numberOfBeats'); i++){
-                data.splice(n,0,click);
-              }
-              data.splice(n,0,firstClick);
-              break;
-            }
-            
-          }
+          //    }
+          //    break;
+          //  }else{
+          //    firstClick[1] = netTimeAtMeasureStart;
+          //    data[n][1] = clickLength + netTimePastMeasureStart - netTimeAtMeasureStart;
+          //    for(var i = 1; i < this.model.get('intro_numberOfBeats'); i++){
+          //      data.splice(n,0,click);
+          //    }
+          //    data.splice(n,0,firstClick);
+          //    break;
+          //  }
+          //  
+          //}
         }
       }
     },
