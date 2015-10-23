@@ -2,8 +2,8 @@ requirejs.config({
     "paths": {
       'path': '../spec/helpers/path',
       "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min",
-      "backbone":"http://documentcloud.github.com/backbone/backbone",
-      "underscore" :"https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js", 
+      "backbone":"https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.3/backbone",
+      "underscore" :"https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore", 
       "text" : 'lib/text',
       "bootstrap" : "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min",
       "marionette" : 'lib/backbone.marionette',
