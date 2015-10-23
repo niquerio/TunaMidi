@@ -3,7 +3,7 @@ requirejs.config({
       'path': '../spec/helpers/path',
       "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min",
       "backbone":"http://documentcloud.github.com/backbone/backbone",
-      "underscore" :"http://documentcloud.github.com/underscore/underscore", 
+      "underscore" :"https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js", 
       "text" : 'lib/text',
       "bootstrap" : "https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min",
       "marionette" : 'lib/backbone.marionette',
